@@ -13,7 +13,9 @@ import { SearchScreen } from '../screens/SearchScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SourceScreen } from '../screens/SourceScreen';
 import { SourcesScreen } from '../screens/SourcesScreen';
+import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { color } from '../theme/tokens';
+import { useSettings } from '../state/settings';
 import { BottomTabBar } from './BottomTabBar';
 import { RootStackParamList, TabParamList } from './types';
 
@@ -36,6 +38,8 @@ function TabNavigator() {
 }
 
 export function RootNavigator() {
+  const { hasOnboarded } = useSettings();
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -49,15 +53,21 @@ export function RootNavigator() {
         animation: 'slide_from_right',
       }}
     >
-      <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
-      <Stack.Screen name="Article" component={ArticleScreen} />
-      <Stack.Screen name="Category" component={CategoryScreen} />
-      <Stack.Screen name="Source" component={SourceScreen} />
-      <Stack.Screen name="Sources" component={SourcesScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="About" component={AboutScreen} />
-      <Stack.Screen name="Privacy" component={PrivacyScreen} />
-      <Stack.Screen name="Account" component={AccountScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+      {!hasOnboarded ? (
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false, animation: 'fade' }} />
+      ) : (
+        <>
+          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="Article" component={ArticleScreen} />
+          <Stack.Screen name="Category" component={CategoryScreen} />
+          <Stack.Screen name="Source" component={SourceScreen} />
+          <Stack.Screen name="Sources" component={SourcesScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
+          <Stack.Screen name="Privacy" component={PrivacyScreen} />
+          <Stack.Screen name="Account" component={AccountScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+        </>
+      )}
     </Stack.Navigator>
   );
 }

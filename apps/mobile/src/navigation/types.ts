@@ -11,6 +11,7 @@ export type TabParamList = {
 };
 
 export type RootStackParamList = {
+  Onboarding: undefined;
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
   Article: { id: string; summary?: ArticleSummary };
   Category: { slug: string; name?: string };

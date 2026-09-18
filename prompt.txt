@@ -3869,3 +3869,866 @@ Do not create unnecessary dependencies.
 The final result should be a highly polished, premium, monochrome React Native news application where **white is the dominant canvas and black is used deliberately for contrast and hierarchy.**
 
 The visual language should be original but inspired by the restraint, polish, and design discipline associated with CRED, modern Next.js, and shadcn.
+
+# React Native Onboarding Carousel Redesign
+
+You are a senior React Native UI/UX engineer and product designer.
+
+I want you to create a premium **3 screen onboarding carousel** for my existing React Native news application.
+
+The MVP is already functional.
+
+This task is ONLY for the onboarding frontend.
+
+Do not modify:
+
+* Backend
+* API
+* PostgreSQL
+* OpenSearch
+* Redis
+* BullMQ
+* GDELT
+* Authentication
+* News logic
+* Search logic
+* Existing business logic
+
+Do not introduce AI functionality into the application.
+
+The onboarding is purely a frontend experience.
+
+---
+
+# PRODUCT CONTEXT
+
+This is a niche news aggregation application.
+
+The application collects relevant news through GDELT and presents the news in a clean, focused mobile experience.
+
+The application is designed around:
+
+* fast news discovery
+* focused coverage
+* trusted source attribution
+* clean reading experience
+* simple search
+* minimal distractions
+
+The onboarding should explain this concept in exactly **3 slides**.
+
+---
+
+# CORE VISUAL DIRECTION
+
+The entire onboarding must follow the existing application design language:
+
+* White dominant
+* Black secondary
+* Monochrome
+* Premium
+* Minimal
+* Editorial
+* Sophisticated
+* High contrast
+* Clean typography
+* Generous whitespace
+
+The visual direction should feel inspired by the design discipline of:
+
+* CRED
+* modern Next.js
+* shadcn
+
+Do NOT copy their interfaces.
+
+Create an original design.
+
+The ratio should feel approximately:
+
+90% white
+10% black
+
+White should dominate the screen.
+
+Black should be used for:
+
+* typography
+* icons
+* buttons
+* navigation
+* image treatment
+* borders
+* emphasis
+
+Do not introduce any other colors.
+
+No:
+
+* blue
+* red
+* green
+* purple
+* orange
+* yellow
+* gradients
+* colorful illustrations
+
+---
+
+# THREE SLIDES
+
+Create exactly 3 onboarding slides.
+
+Each slide should have:
+
+1. Large monochrome animal visual
+2. Short headline
+3. Short supporting description
+4. Carousel indicator
+5. Next button
+
+The three animals are:
+
+SLIDE 1:
+Elephant
+
+SLIDE 2:
+Tiger
+
+SLIDE 3:
+Lion
+
+The animals should represent the personality and philosophy of the application.
+
+They should NOT look like cartoon mascots.
+
+They should NOT look childish.
+
+They should NOT look like generic stock illustrations.
+
+They should feel:
+
+* cinematic
+* sophisticated
+* editorial
+* powerful
+* premium
+* monochrome
+* artistic
+
+---
+
+# IMAGE DIRECTION
+
+The elephant, tiger, and lion images will be generated separately using Gemini.
+
+Design the frontend so these images can easily be replaced by local assets later.
+
+Do not generate images programmatically inside React Native.
+
+Use image assets supplied to the project.
+
+Recommended conceptual image style:
+
+High contrast black and white photography / cinematic editorial portrait.
+
+White or very light background.
+
+Strong black subject.
+
+Minimal environment.
+
+Large subject.
+
+Lots of negative space.
+
+The animal should occupy a significant portion of the visual area without overwhelming the typography.
+
+Avoid busy backgrounds.
+
+Avoid multiple animals in one image.
+
+Avoid color.
+
+Avoid text embedded inside the generated images.
+
+Avoid logos inside the images.
+
+---
+
+# SLIDE 1: ELEPHANT
+
+Concept:
+
+The elephant represents:
+
+* awareness
+* memory
+* perspective
+* seeing the bigger picture
+
+Message:
+
+The application helps users stay aware of important developments without being overwhelmed by the entire internet.
+
+Suggested headline:
+
+"See the bigger picture."
+
+Suggested supporting text:
+
+"Stay focused on the news that matters, without the noise."
+
+Keep the final copy concise and premium.
+
+Do not make the text overly promotional.
+
+The elephant image should visually communicate calm strength and awareness.
+
+---
+
+# SLIDE 2: TIGER
+
+Concept:
+
+The tiger represents:
+
+* focus
+* precision
+* attention
+* speed
+
+Message:
+
+The application filters the noise and brings relevant stories into one focused feed.
+
+Suggested headline:
+
+"News. Focused."
+
+Suggested supporting text:
+
+"Discover relevant stories gathered from across the web, all in one place."
+
+The tiger should have a strong, focused visual presence.
+
+The composition should feel sharp and editorial.
+
+---
+
+# SLIDE 3: LION
+
+Concept:
+
+The lion represents:
+
+* leadership
+* importance
+* authority
+* staying informed
+
+Message:
+
+The application helps users stay informed about important developments surrounding the topic they care about.
+
+Suggested headline:
+
+"Stay informed."
+
+Suggested supporting text:
+
+"Follow important developments, explore the stories behind them, and read from the original sources."
+
+The lion should feel powerful but sophisticated.
+
+Do not make it aggressive.
+
+---
+
+# ONBOARDING LAYOUT
+
+Each screen should use approximately this visual hierarchy:
+
+TOP:
+
+Small app identity / logo if the existing application already has one.
+
+CENTER:
+
+Large animal image.
+
+BOTTOM:
+
+Headline.
+
+Supporting text.
+
+Carousel indicator.
+
+Next button.
+
+Use generous vertical spacing.
+
+Do not overcrowd the screen.
+
+---
+
+# IMAGE POSITIONING
+
+The animal should be the visual hero.
+
+Approximately:
+
+45% to 55% of screen height.
+
+The text area should occupy:
+
+25% to 30%.
+
+Navigation controls should occupy:
+
+10% to 15%.
+
+These are design guidelines, not rigid dimensions.
+
+The layout must remain responsive.
+
+---
+
+# CAROUSEL BEHAVIOR
+
+Implement a proper horizontal onboarding carousel.
+
+The user should be able to:
+
+* swipe left
+* swipe right
+* tap Next
+* see the current slide indicator
+
+The carousel should feel smooth and native.
+
+Use subtle animation.
+
+Do not use exaggerated animation.
+
+---
+
+# PAGE INDICATOR
+
+Use exactly 3 indicators.
+
+Example:
+
+● ○ ○
+
+Then:
+
+○ ● ○
+
+Then:
+
+○ ○ ●
+
+Use only black and white.
+
+Active:
+
+Black
+
+Inactive:
+
+Black with reduced opacity
+
+Keep the indicators small and elegant.
+
+Do not use colorful dots.
+
+---
+
+# NEXT BUTTON
+
+The Next button should be premium and minimal.
+
+Use:
+
+Black background
+
+White text
+
+Subtle corner radius or sharp corners
+
+Strong typography
+
+Lucide arrow-right icon if an icon is appropriate.
+
+Do not use a pill-shaped button.
+
+The button should have comfortable touch dimensions.
+
+---
+
+# BUTTON BEHAVIOR
+
+Slide 1:
+
+NEXT →
+
+Slide 2:
+
+NEXT →
+
+Slide 3:
+
+GET STARTED
+
+The final button should dismiss onboarding and enter the existing application.
+
+Do not modify the existing authentication or navigation architecture.
+
+Connect the final action to the existing application's appropriate entry point.
+
+---
+
+# OPTIONAL SKIP
+
+If the existing product already has a skip onboarding mechanism, redesign it to match the new visual system.
+
+If no skip mechanism exists, do not add one unless it is clearly beneficial.
+
+If implemented:
+
+SKIP
+
+should be subtle.
+
+Do not make it compete with the Next button.
+
+---
+
+# ANIMATION
+
+Use restrained animations.
+
+Recommended:
+
+* horizontal slide transition
+* subtle image scale/fade
+* text transition
+* indicator transition
+* button interaction feedback
+
+Avoid:
+
+* bouncing animals
+* spinning images
+* exaggerated parallax
+* flashy transitions
+* continuous animation
+
+The animation should feel premium.
+
+Think product launch film, not children's game.
+
+---
+
+# TYPOGRAPHY
+
+Use the application's existing font system if available.
+
+Headline:
+
+Large
+
+Bold
+
+High contrast
+
+Short
+
+Supporting text:
+
+Medium
+
+Comfortable line height
+
+Limited width
+
+Navigation:
+
+Semibold
+
+Use typography to create hierarchy.
+
+Do not use excessive font weights.
+
+---
+
+# RESPONSIVE DESIGN
+
+The onboarding must work across:
+
+* small Android phones
+* large Android phones
+* small iPhones
+* large iPhones
+* devices with notches
+* devices with Dynamic Island
+* different aspect ratios
+
+Respect:
+
+* safe areas
+* status bar
+* home indicator
+* Android system navigation
+
+Do not hardcode a layout that only works on one device.
+
+---
+
+# ACCESSIBILITY
+
+Ensure:
+
+* readable text
+* strong contrast
+* accessible Next button
+* accessible carousel controls
+* screen reader labels
+* sufficient touch targets
+
+The animal images should have meaningful accessibility descriptions where appropriate.
+
+---
+
+# PERFORMANCE
+
+The onboarding must load quickly.
+
+Optimize the three animal assets.
+
+Do not load enormous uncompressed images.
+
+Use appropriately sized local assets.
+
+Avoid unnecessary animation work.
+
+The onboarding should remain smooth on lower-end Android devices.
+
+---
+
+# ASSET STRUCTURE
+
+Design the frontend so the three images can be easily replaced.
+
+Conceptually:
+
+onboarding/
+elephant
+tiger
+lion
+
+Do not hardcode external image URLs.
+
+Prefer local bundled assets for onboarding.
+
+The actual generated images will be supplied separately.
+
+---
+
+# IMAGE SPECIFICATIONS
+
+Ask Gemini to generate three separate images with a consistent visual language.
+
+All three must feel like part of the same campaign.
+
+### Elephant
+
+Black and white cinematic editorial elephant portrait.
+
+Minimal white background.
+
+Strong contrast.
+
+Elegant composition.
+
+Large subject.
+
+Negative space.
+
+No text.
+
+No logos.
+
+No color.
+
+### Tiger
+
+Black and white cinematic editorial tiger portrait.
+
+Minimal white background.
+
+Strong contrast.
+
+Sharp eyes.
+
+Elegant composition.
+
+Large subject.
+
+Negative space.
+
+No text.
+
+No logos.
+
+No color.
+
+### Lion
+
+Black and white cinematic editorial lion portrait.
+
+Minimal white background.
+
+Strong contrast.
+
+Powerful but sophisticated expression.
+
+Elegant composition.
+
+Large subject.
+
+Negative space.
+
+No text.
+
+No logos.
+
+No color.
+
+---
+
+# IMPORTANT IMAGE CONSISTENCY
+
+The elephant, tiger, and lion should look like they were photographed by the same photographer during the same editorial campaign.
+
+Maintain:
+
+* identical visual treatment
+* similar contrast
+* similar background
+* similar framing
+* similar subject scale
+* similar lighting philosophy
+
+Do not make one image photographic and another illustrated.
+
+Do not mix styles.
+
+---
+
+# DESIGN DETAILS
+
+Use whitespace aggressively.
+
+The animal image should have enough breathing room.
+
+Do not place text directly over important parts of the animal unless the composition intentionally supports it.
+
+Avoid unnecessary cards.
+
+Avoid shadows.
+
+Avoid gradients.
+
+Avoid decorative shapes.
+
+Avoid excessive borders.
+
+Avoid excessive icons.
+
+---
+
+# PRODUCT PERSONALITY
+
+The onboarding should communicate:
+
+"We are focused."
+
+"We remove noise."
+
+"We help you stay informed."
+
+"We respect your attention."
+
+The user should understand the value of the application within 3 screens.
+
+Do not explain technical implementation.
+
+Do not mention GDELT to the user.
+
+Do not mention PostgreSQL.
+
+Do not mention OpenSearch.
+
+Do not mention APIs.
+
+The onboarding is for normal users, not developers.
+
+---
+
+# FINAL SCREEN EXPERIENCE
+
+After slide 3:
+
+GET STARTED
+
+The transition into the main application should feel seamless.
+
+Do not show an unnecessary confirmation screen.
+
+Do not show a second splash screen unless the existing application requires it.
+
+---
+
+# EXISTING APPLICATION INTEGRATION
+
+Before making changes:
+
+Inspect the existing React Native project.
+
+Identify:
+
+* navigation structure
+* theme system
+* existing design tokens
+* existing font system
+* image handling
+* safe area handling
+* existing onboarding logic if any
+* authentication flow
+
+Reuse existing infrastructure where appropriate.
+
+Do not duplicate existing systems.
+
+Do not rewrite unrelated components.
+
+---
+
+# FRONTEND ONLY
+
+You are allowed to modify:
+
+* onboarding screens
+* onboarding components
+* onboarding styles
+* frontend design tokens if necessary
+* onboarding assets
+* onboarding animation
+* onboarding navigation presentation
+
+You are NOT allowed to modify:
+
+* backend
+* API
+* database
+* GDELT
+* OpenSearch
+* Redis
+* BullMQ
+* business logic
+* news ingestion
+* authentication logic
+
+---
+
+# FINAL QUALITY BAR
+
+The result should feel like a premium product onboarding experience.
+
+It should not feel like:
+
+* a generic template
+* a tutorial
+* a corporate slideshow
+* a colorful news app
+* a children's application
+* an AI generated UI
+* a standard React Native starter screen
+
+It should feel:
+
+Premium.
+
+Minimal.
+
+Monochrome.
+
+Editorial.
+
+Confident.
+
+Modern.
+
+Elegant.
+
+---
+
+# FINAL DELIVERABLE
+
+Implement the 3-screen onboarding carousel in the existing React Native application.
+
+Use the three externally supplied/generated assets:
+
+1. Elephant
+2. Tiger
+3. Lion
+
+Use the exact black-and-white visual system.
+
+Maintain the existing application functionality.
+
+Do not modify backend systems.
+
+Do not introduce AI.
+
+Do not introduce translation.
+
+Do not add unnecessary dependencies.
+
+Do not rewrite unrelated frontend functionality.
+
+Before implementation, inspect the existing frontend and explain briefly:
+
+1. Existing onboarding implementation
+2. Existing navigation entry point
+3. Existing design system
+4. Existing reusable components that can be reused
+5. What will be changed
+6. What will remain untouched
+
+Then implement ONLY the onboarding frontend.
+
+The final experience should be a polished 3-slide carousel:
+
+ELEPHANT
+"See the bigger picture."
+
+↓
+
+TIGER
+"News. Focused."
+
+↓
+
+LION
+"Stay informed."
+
+↓
+
+GET STARTED
+
+The entire experience must use a **white-first, black-only premium visual system**.

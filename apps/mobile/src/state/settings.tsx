@@ -5,15 +5,17 @@ const KEY = 'settings:v1';
 
 interface Settings {
   recentSearches: string[];
+  hasOnboarded: boolean;
 }
 
 interface SettingsContextValue extends Settings {
   loaded: boolean;
   addRecentSearch: (q: string) => void;
   clearRecentSearches: () => void;
+  completeOnboarding: () => void;
 }
 
-const defaults: Settings = { recentSearches: [] };
+const defaults: Settings = { recentSearches: [], hasOnboarded: false };
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -22,7 +24,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void readJson<Partial<Settings>>(KEY, defaults).then((s) => {
-      setSettings({ recentSearches: Array.isArray(s.recentSearches) ? s.recentSearches : [] });
+      setSettings({
+        recentSearches: Array.isArray(s.recentSearches) ? s.recentSearches : [],
+        hasOnboarded: typeof s.hasOnboarded === 'boolean' ? s.hasOnboarded : false,
+      });
       setLoaded(true);
     });
   }, []);
@@ -45,6 +50,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         return { ...s, recentSearches: [t, ...s.recentSearches.filter((x) => x.toLowerCase() !== t.toLowerCase())].slice(0, 8) };
       }),
     clearRecentSearches: () => update((s) => ({ ...s, recentSearches: [] })),
+    completeOnboarding: () => update((s) => ({ ...s, hasOnboarded: true })),
   };
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
