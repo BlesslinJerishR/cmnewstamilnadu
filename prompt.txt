@@ -1,0 +1,2058 @@
+# Project: Open Source Tamil Nadu CM Niche News Application
+
+You are acting as a senior software architect, backend architect, mobile architect, DevOps engineer, database architect, search architect, and technical product engineer.
+
+I am building an open source niche news aggregation mobile application.
+
+The first and primary niche is news related to the Chief Minister of Tamil Nadu, C. Joseph Vijay.
+
+The application should collect relevant English news from GDELT, process and filter the articles on our own backend, store the normalized news data in PostgreSQL, index the processed news in OpenSearch, and expose the processed data through our own API to a React Native mobile application.
+
+IMPORTANT:
+
+Do NOT write any code.
+
+Do NOT generate implementation code, boilerplate, SQL, TypeScript, Dockerfiles, configuration files, React Native components, shell commands, or code snippets.
+
+I only want:
+
+1. Final architecture
+2. System design
+3. Component architecture
+4. Data flow
+5. Database design
+6. GDELT ingestion strategy
+7. Relevance filtering strategy
+8. Deduplication strategy
+9. OpenSearch architecture
+10. Search architecture
+11. Queue architecture
+12. Redis architecture
+13. API architecture
+14. Mobile application architecture
+15. VPS resource planning
+16. Security architecture
+17. Caching strategy
+18. Failure handling
+19. Monitoring strategy
+20. Deployment architecture
+21. Development phases
+22. Production implementation plan
+23. Scalability strategy
+24. Cost considerations
+25. Open source considerations
+26. Licensing and copyright considerations
+
+Do not start coding.
+
+---
+
+# 1. FINAL TECHNOLOGY STACK
+
+The final stack is already decided.
+
+Do not replace these technologies unless there is a critical architectural reason.
+
+## Infrastructure
+
+OVHcloud VPS-1
+
+Resources:
+
+* 2 vCPU
+* 4 GB RAM
+* 40 GB NVMe
+* Linux server
+* No GPU
+
+## Backend
+
+NestJS
+
+Fastify adapter
+
+TypeScript
+
+## Primary Database
+
+PostgreSQL
+
+PostgreSQL is the system of record and source of truth.
+
+## Search Engine
+
+OpenSearch
+
+OpenSearch is responsible for:
+
+* full text search
+* article discovery
+* search ranking
+* text matching
+* filtering
+* faceted search
+* autocomplete where appropriate
+
+Do NOT use Elasticsearch.
+
+Do NOT use OpenSearch as the primary transactional database.
+
+PostgreSQL remains the authoritative database.
+
+## Queue
+
+BullMQ
+
+## Queue Backend
+
+Redis
+
+## Mobile
+
+React Native
+
+## News Source
+
+GDELT only.
+
+DO NOT use:
+
+* GNews
+* NewsAPI
+* Currents
+* Mediastack
+* NewsData
+* other commercial news APIs
+
+GDELT is the only external news discovery/ingestion provider.
+
+---
+
+# 2. AI POLICY FOR THE MVP
+
+This is extremely important.
+
+## NO AI IN THE MVP
+
+Do not introduce artificial intelligence into the current architecture.
+
+Do NOT use:
+
+* OpenAI
+* Gemini
+* Claude
+* LLMs
+* AI summarization
+* AI classification
+* AI relevance scoring
+* AI translation
+* AI embeddings
+* vector search
+* AI generated titles
+* AI generated descriptions
+* AI generated categories
+* AI generated tags
+* AI sentiment analysis
+* AI entity extraction
+
+The entire MVP must work using deterministic and traditional software techniques.
+
+The application should be based on:
+
+* keyword matching
+* phrase matching
+* Boolean logic
+* regular expressions where appropriate
+* deterministic relevance scoring
+* PostgreSQL
+* OpenSearch
+* GDELT metadata
+* rule based categorization
+* traditional text search
+
+Do not add an AI dependency simply because it could improve a particular feature.
+
+The goal is to build a lightweight, predictable, inexpensive open source system.
+
+---
+
+# 3. TRANSLATION POLICY FOR MVP
+
+Tamil translation is NOT part of the MVP.
+
+The initial application should use the original English news content.
+
+Do NOT implement:
+
+* AI translation
+* machine translation
+* translation APIs
+* self hosted translation models
+* translation workers
+* translation queues
+
+The initial language is:
+
+English
+
+The database architecture should nevertheless be designed so Tamil translations can be introduced later without redesigning the entire system.
+
+For example, the architecture should leave room for:
+
+English article
+↓
+Future translation system
+↓
+Tamil translation
+
+But this must remain a future extension.
+
+Do not install or allocate VPS resources for a translation model in the MVP.
+
+This is important because the VPS only has:
+
+2 vCPU
+4 GB RAM
+
+The current system should prioritize:
+
+* API performance
+* PostgreSQL
+* OpenSearch
+* Redis
+* ingestion
+* search
+
+over translation workloads.
+
+---
+
+# 4. CORE PRODUCT CONCEPT
+
+The product is NOT a generic news reader.
+
+It is a focused news aggregation and discovery application.
+
+Initial niche:
+
+Tamil Nadu Chief Minister C. Joseph Vijay
+
+Primary content:
+
+English news articles discovered through GDELT.
+
+Core pipeline:
+
+GDELT
+→ ingestion
+→ normalization
+→ relevance detection
+→ deduplication
+→ article quality filtering
+→ PostgreSQL
+→ OpenSearch indexing
+→ NestJS API
+→ React Native mobile application
+
+The mobile application must never directly communicate with GDELT.
+
+GDELT must be completely hidden behind our backend.
+
+---
+
+# 5. HIGH LEVEL ARCHITECTURE
+
+Design the architecture around this flow:
+
+```
+                GDELT
+                   |
+                   v
+            Ingestion Worker
+                   |
+                   v
+             Normalization
+                   |
+                   v
+           Relevance Engine
+                   |
+                   v
+           Deduplication
+                   |
+                   v
+            Quality Filter
+                   |
+                   v
+              PostgreSQL
+              /        \
+             /          \
+            v            v
+      OpenSearch       BullMQ
+          |                |
+          |              Redis
+          |
+          v
+      Search Layer
+          |
+          v
+     NestJS + Fastify
+          |
+          v
+     React Native App
+```
+
+Explain each component in detail.
+
+---
+
+# 6. MODULAR MONOLITH ARCHITECTURE
+
+The backend should initially be a modular monolith.
+
+Do NOT introduce microservices.
+
+NestJS should have clearly separated domain modules.
+
+Recommended conceptual modules:
+
+* News
+* Sources
+* GDELT Ingestion
+* Relevance
+* Deduplication
+* Search
+* OpenSearch
+* Categories
+* Feed
+* Users
+* Bookmarks
+* Health
+* Admin
+* Configuration
+
+Explain the responsibilities of each module.
+
+The architecture should allow individual modules to become independent services in the future if scale requires it.
+
+---
+
+# 7. GDELT INGESTION ARCHITECTURE
+
+GDELT is the only news provider.
+
+Design a robust GDELT ingestion worker.
+
+The worker should periodically query GDELT for recent coverage.
+
+Recommended initial schedule:
+
+Every 30 minutes.
+
+Use an overlapping search window instead of querying only the exact previous 30-minute period.
+
+Explain why overlap is necessary.
+
+For example:
+
+10:00
+search recent coverage
+
+10:30
+search overlapping recent coverage
+
+11:00
+search overlapping recent coverage
+
+This intentionally creates duplicate results.
+
+The deduplication system must handle this.
+
+The goal is not to maximize the number of API requests.
+
+The goal is to minimize missed relevant articles.
+
+---
+
+# 8. GDELT QUERY STRATEGY
+
+Design a query strategy specifically for the niche.
+
+Do not use only:
+
+"Vijay"
+
+because this can produce unrelated results.
+
+The query system should support combinations such as:
+
+"C Joseph Vijay"
+
+"Joseph Vijay" AND "Tamil Nadu"
+
+"Chief Minister" AND "Vijay" AND "Tamil Nadu"
+
+"Joseph Vijay" AND "Chief Minister"
+
+The query system should support multiple query definitions.
+
+Each query should have:
+
+* query text
+* priority
+* enabled/disabled state
+* search window
+* maximum results
+* relevance configuration
+
+Explain how query configurations should be stored and managed.
+
+Do not hardcode the query strategy into the mobile application.
+
+---
+
+# 9. GDELT INGESTION FREQUENCY
+
+Initial schedule:
+
+Every 30 minutes.
+
+The system should be designed so the schedule can later be changed to:
+
+15 minutes
+30 minutes
+1 hour
+
+without redesigning the application.
+
+Use BullMQ or an appropriate scheduling mechanism for ingestion jobs.
+
+Explain:
+
+* scheduling
+* retries
+* backoff
+* failure handling
+* duplicate jobs
+* job locking
+* job history
+* preventing overlapping ingestion workers
+
+---
+
+# 10. ARTICLE NORMALIZATION
+
+GDELT results must be converted into our own internal article model.
+
+Define the canonical article fields.
+
+The architecture should distinguish between:
+
+## Original metadata
+
+* original URL
+* source name
+* source domain
+* publication timestamp
+* language
+* country
+* author if available
+* image URL if available
+* GDELT metadata
+
+## Our application fields
+
+* internal article ID
+* normalized title
+* normalized description
+* relevance score
+* relevance status
+* duplicate status
+* category
+* quality status
+* ingestion timestamp
+* last updated timestamp
+
+Explain why our internal schema should not mirror GDELT's schema directly.
+
+---
+
+# 11. DEDUPLICATION SYSTEM
+
+This is a critical component.
+
+GDELT searches will overlap.
+
+The same article may appear:
+
+* in multiple searches
+* multiple times across ingestion windows
+* with URL variations
+* with tracking parameters
+* with slightly different metadata
+
+Design a multi-layer deduplication strategy.
+
+Recommended levels:
+
+1. Canonical URL
+2. Normalized URL
+3. Content/title hash
+4. Source + normalized title + publication time
+5. Similarity detection for near-duplicate articles
+
+The initial near-duplicate strategy must remain lightweight.
+
+Do NOT use AI embeddings.
+
+Do NOT use vector databases.
+
+Do NOT use LLMs.
+
+Use deterministic text normalization and OpenSearch/PostgreSQL capabilities where appropriate.
+
+Explain which method should be the primary unique identifier.
+
+Explain how PostgreSQL should enforce uniqueness.
+
+Also explain how to identify syndicated articles where multiple publishers publish substantially the same story.
+
+---
+
+# 12. RELEVANCE ENGINE
+
+This is one of the most important components.
+
+The application must not simply save every article returned by GDELT.
+
+Create a deterministic relevance scoring pipeline.
+
+Example conceptual signals:
+
+High confidence:
+
+"C Joseph Vijay"
+
+"Chief Minister Vijay" + Tamil Nadu
+
+"Joseph Vijay" + Tamil Nadu Government
+
+Medium confidence:
+
+"Joseph Vijay" + Tamil Nadu
+
+"Vijay" + Chief Minister
+
+Low confidence:
+
+"Vijay" alone
+
+Negative signals:
+
+Vijay actor
+Vijay movie
+Vijay Sethupathi
+Vijay Antony
+Vijay TV
+film
+cinema
+song
+movie
+actor
+
+Do not use these as rigid final scoring values.
+
+Instead design a configurable relevance engine.
+
+Explain:
+
+* positive keywords
+* negative keywords
+* exact phrase matching
+* title matching
+* description matching
+* source relevance
+* geographic relevance
+* word proximity
+* frequency of keyword occurrence
+* score thresholds
+* manual override
+
+Initial implementation must be deterministic.
+
+No AI.
+
+No LLM.
+
+No embeddings.
+
+No external classification service.
+
+---
+
+# 13. ARTICLE QUALITY FILTER
+
+Design a quality layer after relevance detection.
+
+Potential checks:
+
+* valid URL
+* valid publication timestamp
+* valid title
+* source domain
+* title length
+* description availability
+* duplicate status
+* language
+* spam indicators
+* suspicious domains
+* low-quality content
+* broken URLs
+
+Explain whether an article should be:
+
+ACCEPTED
+
+REJECTED
+
+PENDING REVIEW
+
+The system should preserve rejected article metadata where useful for debugging, but should not expose rejected content through the public API.
+
+---
+
+# 14. ARTICLE CATEGORIES
+
+Design an initial deterministic category system.
+
+Potential categories:
+
+* Government
+* Politics
+* Policy
+* Welfare
+* Education
+* Healthcare
+* Economy
+* Infrastructure
+* Law and Order
+* Elections
+* Tamil Nadu
+* National
+* International
+* Statements
+* Events
+
+Explain how an article can belong to one or multiple categories.
+
+Use rule based classification initially.
+
+For example:
+
+Government:
+
+government
+cabinet
+minister
+secretariat
+
+Education:
+
+school
+college
+university
+education
+
+Healthcare:
+
+hospital
+health
+medical
+healthcare
+
+Do not use AI classification.
+
+The database should support future improvements.
+
+---
+
+# 15. OPENSEARCH ARCHITECTURE
+
+OpenSearch is a core component of this application.
+
+Do NOT treat it as optional.
+
+PostgreSQL remains the source of truth.
+
+OpenSearch is a derived search index.
+
+Data flow:
+
+PostgreSQL
+↓
+Indexing Worker
+↓
+OpenSearch
+
+When an article changes:
+
+PostgreSQL
+↓
+Index update
+↓
+OpenSearch
+
+When an article is deleted:
+
+PostgreSQL
+↓
+Index deletion
+↓
+OpenSearch
+
+Explain why PostgreSQL and OpenSearch should not be treated as equal sources of truth.
+
+---
+
+# 16. OPENSEARCH INDEX DESIGN
+
+Design a production appropriate article index.
+
+Potential searchable fields:
+
+* title
+* description
+* source name
+* source domain
+* category
+* tags
+* published date
+* language
+* relevance score
+
+Potential exact-match fields:
+
+* article ID
+* source ID
+* domain
+* category
+* language
+
+Design appropriate mappings conceptually.
+
+Explain:
+
+* text fields
+* keyword fields
+* date fields
+* numeric relevance fields
+* analyzers
+* tokenization
+* stemming
+* stop words
+* Tamil readiness for future use
+
+Do not write actual OpenSearch mapping JSON.
+
+---
+
+# 17. OPENSEARCH SEARCH FEATURES
+
+The application should support:
+
+* keyword search
+* phrase search
+* source filtering
+* category filtering
+* date filtering
+* latest articles
+* relevance based search
+* combined filters
+* pagination
+* autocomplete later
+
+Explain how OpenSearch should rank results.
+
+The ranking should consider:
+
+* title matches
+* description matches
+* exact phrase matches
+* keyword frequency
+* publication freshness
+* relevance score
+
+Avoid overly complex ranking for the MVP.
+
+---
+
+# 18. OPENSEARCH + POSTGRESQL RESPONSIBILITY
+
+Clearly define responsibilities.
+
+## PostgreSQL
+
+Source of truth for:
+
+* articles
+* sources
+* categories
+* users
+* bookmarks
+* ingestion records
+* system settings
+* article state
+
+## OpenSearch
+
+Search optimized representation of:
+
+* articles
+* searchable metadata
+* searchable text
+* filtering fields
+* ranking fields
+
+## Redis
+
+Temporary/cache/queue infrastructure.
+
+This separation must be maintained.
+
+---
+
+# 19. OPEN SEARCH INDEX SYNCHRONIZATION
+
+Design how PostgreSQL changes reach OpenSearch.
+
+Possible architecture:
+
+Article accepted
+↓
+PostgreSQL transaction
+↓
+Create indexing job
+↓
+BullMQ
+↓
+OpenSearch indexing worker
+↓
+Index document
+
+Explain how to avoid losing an OpenSearch update if the application crashes after PostgreSQL commits.
+
+Consider an outbox/event style architecture if appropriate.
+
+Do not use distributed microservices.
+
+A lightweight PostgreSQL outbox pattern is acceptable.
+
+Explain whether it is necessary for MVP and what tradeoffs it provides.
+
+---
+
+# 20. SEARCH ARCHITECTURE
+
+When a user searches:
+
+React Native
+↓
+NestJS API
+↓
+Search module
+↓
+OpenSearch
+↓
+Results
+↓
+NestJS
+↓
+React Native
+
+Do NOT search GDELT directly.
+
+Do NOT perform expensive search queries directly against PostgreSQL if OpenSearch is capable of handling them.
+
+PostgreSQL should be used to retrieve authoritative article data where appropriate.
+
+Explain when the API should:
+
+1. Return indexed OpenSearch document data directly.
+
+versus
+
+2. Use OpenSearch IDs to retrieve authoritative records from PostgreSQL.
+
+Recommend the appropriate approach.
+
+---
+
+# 21. BULLMQ ARCHITECTURE
+
+Use BullMQ for asynchronous workloads.
+
+Recommended conceptual queues:
+
+1. GDELT ingestion
+2. Article processing
+3. OpenSearch indexing
+4. Cleanup/maintenance
+
+Do NOT create a translation queue because translation is not part of the MVP.
+
+Explain:
+
+* queue priorities
+* retries
+* exponential backoff
+* dead letter handling
+* stalled jobs
+* idempotency
+* job retention
+
+All jobs must be idempotent.
+
+---
+
+# 22. REDIS ARCHITECTURE
+
+Redis is used for:
+
+* BullMQ
+* API caching
+* rate limiting where appropriate
+* temporary application state
+
+PostgreSQL remains the source of truth.
+
+OpenSearch remains the search index.
+
+Redis must never become the permanent article database.
+
+Because the VPS only has 4 GB RAM, Redis memory usage must be constrained.
+
+Explain:
+
+* cache TTL
+* cache keys
+* invalidation
+* memory limits
+* BullMQ retention
+* failed job retention
+* completed job retention
+
+---
+
+# 23. NESTJS BACKEND ARCHITECTURE
+
+Design the backend as a modular monolith.
+
+Conceptual modules:
+
+GDELT
+
+News
+
+Sources
+
+Relevance
+
+Deduplication
+
+Search
+
+OpenSearch
+
+Categories
+
+Feed
+
+Users
+
+Bookmarks
+
+Admin
+
+Health
+
+Configuration
+
+Explain module dependencies.
+
+Avoid circular dependencies.
+
+Keep infrastructure concerns separate from domain logic.
+
+---
+
+# 24. API ARCHITECTURE
+
+Design the public API conceptually.
+
+Potential endpoints:
+
+GET /news
+
+GET /news/:id
+
+GET /news/latest
+
+GET /news/search
+
+GET /categories
+
+GET /sources
+
+GET /news/by-category
+
+GET /news/by-date
+
+GET /health
+
+Authentication-related endpoints can later support:
+
+* bookmarks
+* saved articles
+* preferences
+
+Do not write endpoint code.
+
+Explain:
+
+* validation
+* pagination
+* sorting
+* filtering
+* error handling
+* caching
+* rate limiting
+
+Use cursor pagination where appropriate.
+
+---
+
+# 25. FEED ARCHITECTURE
+
+The home feed should be server driven.
+
+Potential sections:
+
+Latest
+Politics
+Government
+Policy
+Welfare
+Education
+Healthcare
+Economy
+
+The feed should be based on PostgreSQL/OpenSearch data.
+
+The mobile app must not construct complex GDELT queries.
+
+---
+
+# 26. REACT NATIVE ARCHITECTURE
+
+Design the mobile architecture conceptually.
+
+Screens:
+
+* Home
+* Latest News
+* Categories
+* Search
+* Article Detail
+* Bookmarks
+* Settings
+* About
+* Source information
+
+Explain:
+
+* API communication
+* local caching
+* pagination
+* pull-to-refresh
+* offline behavior
+* loading states
+* empty states
+* error states
+* deep linking to original articles
+
+The app should not know anything about GDELT.
+
+---
+
+# 27. MOBILE CACHING
+
+Design a local caching strategy.
+
+Previously loaded news should remain available when the user temporarily loses connectivity.
+
+Explain:
+
+* cache duration
+* stale data
+* refresh strategy
+* article cache
+* search cache
+* image cache
+* pagination cache
+
+The server remains the source of truth.
+
+---
+
+# 28. SERVER CACHING
+
+Use Redis for frequently accessed responses.
+
+Candidates:
+
+* latest news
+* homepage feed
+* categories
+* sources
+* trending/search suggestions
+
+Search queries should not blindly be cached indefinitely.
+
+Use appropriate TTLs.
+
+Explain cache invalidation when new articles arrive.
+
+---
+
+# 29. VPS RESOURCE ALLOCATION
+
+The entire MVP runs on:
+
+OVHcloud VPS-1
+
+2 vCPU
+
+4 GB RAM
+
+40 GB NVMe
+
+No GPU.
+
+This is a constrained server.
+
+The architecture must explicitly account for the resources consumed by:
+
+* Linux
+* NestJS
+* PostgreSQL
+* Redis
+* OpenSearch
+* BullMQ
+* ingestion workers
+* indexing workers
+* reverse proxy
+* monitoring
+
+OpenSearch can consume significant memory.
+
+This is a critical architectural concern.
+
+Evaluate whether OpenSearch is realistically sustainable on 4 GB RAM.
+
+If it is possible, explain how to configure a lightweight single-node deployment conceptually.
+
+Discuss:
+
+* heap sizing
+* memory limits
+* index size
+* shard count
+* replica count
+* JVM memory
+* disk usage
+
+Do not provide configuration files.
+
+Do not blindly claim the VPS is sufficient.
+
+Clearly identify resource risks.
+
+The initial OpenSearch deployment should use:
+
+* single node
+* minimal shards
+* no unnecessary replicas
+* limited retained data
+* controlled JVM heap
+* careful memory allocation
+
+Explain how this affects reliability.
+
+---
+
+# 30. DATABASE STORAGE
+
+40 GB NVMe is limited.
+
+Design storage carefully.
+
+Separate:
+
+* PostgreSQL data
+* OpenSearch data
+* Redis persistence if enabled
+* logs
+* backups
+
+Do not store unnecessary raw GDELT responses permanently.
+
+Do not store complete publisher articles unless legally permitted and technically necessary.
+
+Recommend retention policies.
+
+Explain how storage should be monitored.
+
+---
+
+# 31. DEPLOYMENT ARCHITECTURE
+
+Recommend a production deployment architecture.
+
+Conceptually:
+
+Internet
+↓
+Reverse Proxy
+↓
+NestJS + Fastify
+↓
+PostgreSQL
+Redis
+OpenSearch
+BullMQ workers
+
+Explain whether Docker Compose is appropriate.
+
+If recommending Docker, explain resource allocation conceptually.
+
+Do not generate Docker files.
+
+Do not generate commands.
+
+---
+
+# 32. SECURITY ARCHITECTURE
+
+Include:
+
+* HTTPS
+* firewall
+* SSH hardening
+* secrets management
+* database not publicly exposed
+* Redis not publicly exposed
+* OpenSearch not publicly exposed
+* CORS
+* request validation
+* rate limiting
+* input sanitization
+* URL validation
+* SSRF protection
+* malicious article URL considerations
+* logging
+* backups
+
+GDELT data contains external URLs.
+
+Do not allow arbitrary server-side fetching of external URLs without proper security controls.
+
+---
+
+# 33. DATABASE BACKUPS
+
+Design a backup strategy.
+
+PostgreSQL backups should be:
+
+* scheduled
+* compressed
+* stored off-server
+* retained according to policy
+* periodically tested
+
+Do not store the only backup on the same 40 GB VPS.
+
+OpenSearch does not need to be treated as the primary backup source because it is a derived index.
+
+Explain how OpenSearch can be rebuilt from PostgreSQL if necessary.
+
+This is an important architectural principle.
+
+---
+
+# 34. OPEN SEARCH RECOVERY
+
+If OpenSearch is destroyed:
+
+PostgreSQL
+↓
+Reindexing job
+↓
+OpenSearch
+
+The application should remain recoverable because PostgreSQL is authoritative.
+
+Explain how to rebuild the index.
+
+Design the indexing process so that millions of future records can eventually be reindexed in batches.
+
+For MVP, keep this simple.
+
+---
+
+# 35. MONITORING
+
+Monitor:
+
+* VPS CPU
+* VPS RAM
+* disk usage
+* PostgreSQL size
+* PostgreSQL connections
+* Redis memory
+* OpenSearch heap
+* OpenSearch disk
+* OpenSearch health
+* ingestion success
+* ingestion failure
+* ingestion duration
+* article ingestion rate
+* duplicate rate
+* relevance rejection rate
+* OpenSearch indexing failures
+* indexing queue length
+* API latency
+* HTTP error rate
+
+Pay special attention to:
+
+RAM exhaustion
+
+OpenSearch JVM memory
+
+disk exhaustion
+
+Redis memory growth
+
+queue growth
+
+---
+
+# 36. FAILURE SCENARIOS
+
+Explain what happens if:
+
+GDELT is unavailable.
+
+GDELT returns malformed data.
+
+The same article appears repeatedly.
+
+PostgreSQL becomes unavailable.
+
+Redis becomes unavailable.
+
+OpenSearch becomes unavailable.
+
+OpenSearch loses its index.
+
+An indexing job fails.
+
+The indexing queue grows.
+
+The API receives excessive traffic.
+
+The VPS restarts.
+
+Disk reaches 80%.
+
+Disk reaches 90%.
+
+A source URL becomes unavailable.
+
+An article's URL changes.
+
+A source publishes duplicate/syndicated content.
+
+Design graceful recovery.
+
+---
+
+# 37. DATA RETENTION
+
+Recommend a practical retention strategy.
+
+Consider:
+
+* article metadata
+* title
+* description
+* source
+* original URL
+* publication timestamp
+* relevance data
+* categories
+
+Avoid storing unnecessary raw provider payloads indefinitely.
+
+Because storage is only 40 GB, explain how retention should evolve.
+
+Potential strategy:
+
+Recent articles:
+full metadata
+
+Older articles:
+retain important metadata
+
+Very old data:
+archive or remove according to product requirements
+
+OpenSearch can have a smaller searchable window than PostgreSQL if necessary.
+
+---
+
+# 38. COPYRIGHT AND NEWS AGGREGATION
+
+The application aggregates news from publishers.
+
+Do not design the product around copying and republishing entire articles.
+
+Prefer storing:
+
+* article title
+* short description/snippet where permitted
+* source
+* publication timestamp
+* original URL
+* permitted image/thumbnail metadata
+
+The full article should remain at the original publisher.
+
+The application should provide clear source attribution.
+
+Explain:
+
+* publisher attribution
+* original URLs
+* timestamps
+* copyright considerations
+* image licensing
+* GDELT terms
+* news redistribution considerations
+* open source licensing
+
+Do not provide legal advice.
+
+Clearly identify what must be checked before commercial deployment.
+
+---
+
+# 39. OPEN SOURCE REPOSITORY ARCHITECTURE
+
+The project itself will be open source.
+
+Design the repository conceptually.
+
+Potential structure:
+
+apps
+
+backend
+
+mobile
+
+packages
+
+shared types
+
+shared configuration
+
+infrastructure
+
+docs
+
+Do not generate actual files.
+
+Explain responsibilities.
+
+Production credentials must never be committed.
+
+---
+
+# 40. ADMIN SYSTEM
+
+Design a minimal admin system.
+
+Admin should eventually be able to:
+
+* view articles
+* approve/reject articles
+* edit category
+* manage keywords
+* manage negative keywords
+* manage GDELT queries
+* manage sources
+* view ingestion status
+* view OpenSearch indexing status
+* retry failed jobs
+* disable problematic sources
+* inspect duplicate detection
+
+No AI-based moderation.
+
+---
+
+# 41. FUTURE TRANSLATION EXTENSION
+
+Translation is NOT part of MVP.
+
+However, design a future extension point.
+
+Future architecture:
+
+English Article
+↓
+Translation Queue
+↓
+Translation Worker
+↓
+English → Tamil
+↓
+Translation storage
+↓
+API
+
+This should not affect the current ingestion architecture.
+
+The future translation system must be optional.
+
+Do not install a translation model now.
+
+Do not allocate RAM for translation now.
+
+Do not create translation queues now.
+
+---
+
+# 42. FUTURE AI EXTENSION
+
+AI is NOT part of MVP.
+
+The architecture may have future extension points for:
+
+* advanced relevance classification
+* summarization
+* entity extraction
+* advanced categorization
+* event clustering
+* semantic search
+* embeddings
+
+But these must remain future possibilities only.
+
+Do not include:
+
+* LLMs
+* embeddings
+* vector databases
+* AI APIs
+
+in the current implementation.
+
+The MVP must be fully functional without AI.
+
+---
+
+# 43. FUTURE MULTI-NICHE SUPPORT
+
+Although the initial niche is:
+
+C. Joseph Vijay / Tamil Nadu Chief Minister news
+
+design the architecture so additional niches can be introduced later.
+
+Examples:
+
+Tamil Nadu Government
+
+Tamil Nadu Politics
+
+Tamil Nadu Education
+
+Tamil Nadu Healthcare
+
+Each niche can have configurable:
+
+* positive keywords
+* negative keywords
+* GDELT queries
+* categories
+* relevance rules
+
+Do not create a separate backend for every niche.
+
+---
+
+# 44. SCALABILITY
+
+Design a scaling path.
+
+## Stage 1
+
+One OVH VPS:
+
+2 vCPU
+4 GB RAM
+
+Run:
+
+* NestJS
+* PostgreSQL
+* Redis
+* OpenSearch
+* workers
+
+## Stage 2
+
+Upgrade VPS resources.
+
+Increase:
+
+* RAM
+* CPU
+* NVMe
+
+## Stage 3
+
+Move PostgreSQL to dedicated infrastructure.
+
+## Stage 4
+
+Move OpenSearch to dedicated infrastructure.
+
+## Stage 5
+
+Separate worker infrastructure.
+
+## Stage 6
+
+Multiple API instances.
+
+Explain when each stage becomes necessary.
+
+Do not prematurely introduce Kubernetes.
+
+Do not prematurely introduce microservices.
+
+---
+
+# 45. COST MODEL
+
+The application should minimize recurring costs.
+
+Software:
+
+NestJS:
+open source
+
+Fastify:
+open source
+
+PostgreSQL:
+open source
+
+Redis:
+open source
+
+BullMQ:
+open source
+
+OpenSearch:
+open source
+
+React Native:
+open source
+
+GDELT:
+public/free access, subject to its usage and service policies
+
+Current translation API cost:
+
+₹0 because translation is not implemented.
+
+Primary infrastructure cost:
+
+OVH VPS.
+
+Potential future costs:
+
+* larger VPS
+* dedicated PostgreSQL
+* dedicated OpenSearch
+* backups
+* object storage
+* CDN
+* domain
+* monitoring
+* app store fees
+* future translation infrastructure
+
+Clearly distinguish software licensing from infrastructure costs.
+
+---
+
+# 46. MVP IMPLEMENTATION PHASES
+
+Create a detailed implementation roadmap.
+
+## Phase 1
+
+Infrastructure architecture
+
+## Phase 2
+
+PostgreSQL schema
+
+## Phase 3
+
+GDELT ingestion
+
+## Phase 4
+
+Article normalization
+
+## Phase 5
+
+Deduplication
+
+## Phase 6
+
+Deterministic relevance engine
+
+## Phase 7
+
+Rule-based categorization
+
+## Phase 8
+
+OpenSearch integration
+
+## Phase 9
+
+OpenSearch indexing pipeline
+
+## Phase 10
+
+Search API
+
+## Phase 11
+
+Feed API
+
+## Phase 12
+
+Redis caching
+
+## Phase 13
+
+React Native application
+
+## Phase 14
+
+Bookmarks/authentication
+
+## Phase 15
+
+Admin functionality
+
+## Phase 16
+
+Monitoring
+
+## Phase 17
+
+Backups
+
+## Phase 18
+
+Production hardening
+
+For every phase explain:
+
+* objective
+* components
+* dependencies
+* expected output
+* testing requirements
+
+Do not write code.
+
+---
+
+# 47. TESTING STRATEGY
+
+Design testing without writing tests.
+
+Include:
+
+Unit testing
+
+Integration testing
+
+GDELT ingestion testing
+
+Normalization testing
+
+Deduplication testing
+
+Relevance testing
+
+Categorization testing
+
+PostgreSQL testing
+
+OpenSearch indexing testing
+
+OpenSearch search testing
+
+BullMQ testing
+
+Redis testing
+
+API testing
+
+React Native testing
+
+Offline testing
+
+Load testing
+
+Failure testing
+
+Security testing
+
+Explain what should be tested at each layer.
+
+---
+
+# 48. IMPORTANT ARCHITECTURAL RULES
+
+The final architecture must follow these rules:
+
+1. GDELT is the only news provider.
+
+2. Mobile app never calls GDELT directly.
+
+3. PostgreSQL is the source of truth.
+
+4. OpenSearch is a derived search index.
+
+5. Redis is not the source of truth.
+
+6. BullMQ handles asynchronous workloads.
+
+7. No AI is required anywhere in MVP.
+
+8. No LLM is required anywhere in MVP.
+
+9. No AI translation is required.
+
+10. No translation model is installed in MVP.
+
+11. English is the initial application language.
+
+12. Tamil translation is a future extension.
+
+13. Relevance filtering happens before OpenSearch indexing.
+
+14. Deduplication happens before OpenSearch indexing.
+
+15. Rejected articles should not enter the public search index.
+
+16. Never index duplicate articles.
+
+17. Ingestion jobs must be idempotent.
+
+18. Indexing jobs must be idempotent.
+
+19. PostgreSQL and OpenSearch must have clearly separated responsibilities.
+
+20. OpenSearch must never become the only copy of article data.
+
+21. OpenSearch must be rebuildable from PostgreSQL.
+
+22. Do not introduce microservices for MVP.
+
+23. Do not introduce Kubernetes for MVP.
+
+24. Use PostgreSQL for transactional data.
+
+25. Use OpenSearch for search.
+
+26. Use Redis for caching and BullMQ.
+
+27. The system must fit a 2 vCPU / 4 GB RAM VPS as much as realistically possible.
+
+28. OpenSearch memory usage must be treated as a primary infrastructure constraint.
+
+29. Do not use unnecessary OpenSearch replicas on a single-node VPS.
+
+30. Do not store unnecessary raw GDELT payloads permanently.
+
+31. Original publisher URLs must be preserved.
+
+32. Publisher attribution must be preserved.
+
+33. Do not build the product around republishing entire copyrighted articles.
+
+34. The system must be provider-agnostic internally even though GDELT is the only provider initially.
+
+35. Future translation and AI features must be optional extensions.
+
+36. The mobile application must communicate only with our backend API.
+
+---
+
+# 49. REQUIRED FINAL OUTPUT
+
+After analyzing everything above, produce a detailed architecture document.
+
+Structure the response exactly around:
+
+1. Executive Architecture Summary
+2. Final Technology Stack
+3. High Level Architecture Diagram
+4. Detailed Component Architecture
+5. GDELT Ingestion Architecture
+6. GDELT Query Strategy
+7. Article Processing Pipeline
+8. Relevance Engine
+9. Deduplication Engine
+10. Article Quality System
+11. Category Architecture
+12. PostgreSQL Data Model
+13. OpenSearch Architecture
+14. OpenSearch Index Design
+15. OpenSearch Search Strategy
+16. PostgreSQL and OpenSearch Synchronization
+17. BullMQ Architecture
+18. Redis Architecture
+19. NestJS Backend Architecture
+20. API Architecture
+21. Feed Architecture
+22. React Native Architecture
+23. Mobile Caching
+24. Server Caching
+25. VPS Resource Allocation
+26. Storage Architecture
+27. Deployment Architecture
+28. Security Architecture
+29. Backup and Disaster Recovery
+30. OpenSearch Recovery Strategy
+31. Monitoring
+32. Failure Handling
+33. Data Retention
+34. Copyright and Attribution Considerations
+35. Open Source Repository Architecture
+36. Admin Architecture
+37. Future Translation Extension
+38. Future AI Extension
+39. Multi-Niche Architecture
+40. Scalability Roadmap
+41. Cost Architecture
+42. MVP Implementation Phases
+43. Testing Strategy
+44. Risks and Mitigations
+45. Recommended Development Order
+46. Final Architecture Decision
+
+At the end provide a concise:
+
+# FINAL ARCHITECTURE
+
+Show the final architecture as:
+
+```
+                GDELT
+                   |
+                   v
+            GDELT Ingestion
+                   |
+                   v
+             Normalization
+                   |
+                   v
+           Relevance Engine
+                   |
+                   v
+           Deduplication
+                   |
+                   v
+            Quality Filter
+                   |
+                   v
+              PostgreSQL
+              /        \
+             /          \
+            v            v
+      OpenSearch       BullMQ
+          |              |
+          |            Redis
+          |
+          v
+     Search / Feed
+          |
+          v
+   NestJS + Fastify API
+          |
+          v
+     React Native App
+```
+
+Clearly identify:
+
+* what runs continuously
+* what runs periodically
+* what is asynchronous
+* what is cached
+* what is persistent
+* what is the source of truth
+* what is a derived index
+* what happens when OpenSearch fails
+* what happens when Redis fails
+* what happens when GDELT fails
+* how the system recovers
+
+FINAL CONSTRAINT:
+
+DO NOT WRITE CODE.
+
+DO NOT GENERATE COMMANDS.
+
+DO NOT GENERATE SQL.
+
+DO NOT GENERATE CONFIGURATION FILES.
+
+DO NOT GENERATE CODE SNIPPETS.
+
+DO NOT IMPLEMENT AI.
+
+DO NOT IMPLEMENT TRANSLATION.
+
+DO NOT RECOMMEND GNEWS OR OTHER NEWS APIs.
+
+This is an architecture and implementation planning document only.
+
+the app frontend should only be in the color black and white. use only the colors black and white (Important) 
+
+Implement this. code. make no mistakes.
