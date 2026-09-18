@@ -108,6 +108,7 @@ export function HomeScreen() {
           ) : (
             <View style={styles.more}>
               <Button label="More news" variant="secondary" icon={Newspaper} onPress={() => navigation.navigate('Tabs', { screen: 'Latest' })} />
+              <Text variant="meta" tone="subtle" style={styles.madeInIndia}>made in india.</Text>
             </View>
           )}
         </View>
@@ -161,4 +162,5 @@ const styles = StyleSheet.create({
   row: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: layout.gutter },
   fresh: { paddingHorizontal: layout.gutter, paddingTop: space[1], paddingBottom: space[3], width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center' },
   more: { paddingTop: space[8] },
+  madeInIndia: { textAlign: 'center', marginTop: space[4], },
 });
