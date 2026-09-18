@@ -11,6 +11,7 @@ import type {
   UserProfile,
 } from '@cmnews/shared';
 import { API_BASE_URL } from '../config';
+import { demoApi } from './demo-data';
 
 export class ApiError extends Error {
   constructor(
@@ -78,28 +79,31 @@ async function request<T>(method: string, path: string, opts: { query?: Query; b
   return json as T;
 }
 
+/**
+ * DEMO MODE: Using offline demo data so the app works without a backend.
+ * To switch back to the real API, replace `demoApi` calls below with the
+ * original `request()` calls (commented alongside each method).
+ */
 export const api = {
-  feed: (signal?: AbortSignal) => request<FeedResponse>('GET', '/feed', { signal }),
-  latest: (cursor?: string, signal?: AbortSignal) => request<Paginated<ArticleSummary>>('GET', '/news/latest', { query: { cursor, limit: 20 }, signal }),
-  byCategory: (slug: string, cursor?: string, signal?: AbortSignal) =>
-    request<Paginated<ArticleSummary>>('GET', `/news/by-category/${encodeURIComponent(slug)}`, { query: { cursor, limit: 20 }, signal }),
-  bySource: (domain: string, cursor?: string, signal?: AbortSignal) =>
-    request<Paginated<ArticleSummary>>('GET', '/news', { query: { source: domain, cursor, limit: 20 }, signal }),
-  byDate: (date: string, cursor?: string, signal?: AbortSignal) =>
-    request<Paginated<ArticleSummary>>('GET', '/news/by-date', { query: { date, cursor, limit: 20 }, signal }),
-  search: (q: string, sort: 'relevance' | 'latest', cursor?: string, signal?: AbortSignal) =>
-    request<SearchResponse>('GET', '/news/search', { query: { q, sort, cursor, limit: 20 }, signal }),
-  suggest: (q: string, signal?: AbortSignal) => request<{ suggestions: string[] }>('GET', '/news/suggest', { query: { q }, signal }),
-  article: (id: string, signal?: AbortSignal) => request<ArticleDetail>('GET', `/news/${encodeURIComponent(id)}`, { signal }),
-  categories: (signal?: AbortSignal) => request<{ items: Category[] }>('GET', '/categories', { signal }),
-  sources: (signal?: AbortSignal) => request<{ items: Source[] }>('GET', '/sources', { signal }),
+  feed: (_signal?: AbortSignal) => demoApi.feed(),                                                     // request<FeedResponse>('GET', '/feed', { signal })
+  latest: (cursor?: string, _signal?: AbortSignal) => demoApi.latest(cursor),                          // request<Paginated<ArticleSummary>>('GET', '/news/latest', { query: { cursor, limit: 20 }, signal })
+  byCategory: (slug: string, cursor?: string, _signal?: AbortSignal) => demoApi.byCategory(slug, cursor), // request(...)
+  bySource: (domain: string, cursor?: string, _signal?: AbortSignal) => demoApi.bySource(domain, cursor), // request(...)
+  byDate: (date: string, cursor?: string, _signal?: AbortSignal) => demoApi.byDate(date, cursor),         // request(...)
+  search: (q: string, sort: 'relevance' | 'latest', cursor?: string, _signal?: AbortSignal) => demoApi.search(q, sort, cursor), // request(...)
+  suggest: (q: string, _signal?: AbortSignal) => demoApi.suggest(q),                                   // request(...)
+  article: (id: string, _signal?: AbortSignal) => demoApi.article(id),                                 // request(...)
+  categories: (_signal?: AbortSignal) => demoApi.categories(),                                         // request(...)
+  sources: (_signal?: AbortSignal) => demoApi.sources(),                                               // request(...)
 
-  register: (email: string, password: string) => request<AuthResponse>('POST', '/auth/register', { body: { email, password } }),
-  login: (email: string, password: string) => request<AuthResponse>('POST', '/auth/login', { body: { email, password } }),
-  logout: () => request<void>('POST', '/auth/logout'),
-  me: () => request<UserProfile>('GET', '/me'),
-  bookmarks: (cursor?: string) => request<Paginated<BookmarkItem>>('GET', '/me/bookmarks', { query: { cursor, limit: 50 } }),
-  addBookmark: (id: string) => request<void>('PUT', `/me/bookmarks/${encodeURIComponent(id)}`),
-  removeBookmark: (id: string) => request<void>('DELETE', `/me/bookmarks/${encodeURIComponent(id)}`),
-  importBookmarks: (articleIds: string[]) => request<{ imported: number }>('POST', '/me/bookmarks/import', { body: { articleIds } }),
+  // Auth and bookmarks are no-ops in demo mode.
+  register: (_email: string, _password: string): Promise<AuthResponse> => Promise.reject(new ApiError('Demo mode — registration disabled.', 0, 'demo')),
+  login: (_email: string, _password: string): Promise<AuthResponse> => Promise.reject(new ApiError('Demo mode — login disabled.', 0, 'demo')),
+  logout: () => Promise.resolve(undefined as void),
+  me: () => Promise.reject(new ApiError('Demo mode — not signed in.', 0, 'demo')),
+  bookmarks: (_cursor?: string) => Promise.resolve({ items: [], nextCursor: null } as Paginated<BookmarkItem>),
+  addBookmark: (_id: string) => Promise.resolve(undefined as void),
+  removeBookmark: (_id: string) => Promise.resolve(undefined as void),
+  importBookmarks: (_articleIds: string[]) => Promise.resolve({ imported: 0 }),
 };
+

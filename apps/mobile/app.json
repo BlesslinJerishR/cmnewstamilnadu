@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "CM News TN",
+    "name": "TNigazhvu",
     "slug": "cmnews-tamilnadu",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -10,10 +10,10 @@
     "backgroundColor": "#FFFFFF",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "in.blessl.cmnews"
+      "bundleIdentifier": "in.blessl.cmnewstn"
     },
     "android": {
-      "package": "in.blessl.cmnews",
+      "package": "in.blessl.cmnewstn",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",

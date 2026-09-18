@@ -22,7 +22,7 @@ export function AboutScreen() {
     <ScrollView style={{ backgroundColor: color.bg }} contentContainerStyle={styles.content}>
       <View style={styles.inner}>
         <Text variant="display" accessibilityRole="header">
-          CM News
+          CM News TN
         </Text>
         <Text variant="body" tone="muted" style={{ marginTop: space[3] }}>
           Focused, open source coverage of Tamil Nadu Chief Minister C. Joseph Vijay and his government.

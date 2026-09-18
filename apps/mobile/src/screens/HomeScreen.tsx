@@ -120,7 +120,7 @@ export function HomeScreen() {
   const header = (
     <AppHeader
       brand
-      title="CM News"
+      title="News"
       kicker="Tamil Nadu · Chief Minister"
       actions={
         <>
