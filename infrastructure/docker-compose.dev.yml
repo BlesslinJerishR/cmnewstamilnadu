@@ -1,0 +1,43 @@
+# Local development dependencies only (PostgreSQL, Redis, OpenSearch), bound to localhost.
+# Run the API and worker from apps/backend with apps/backend/.env.development.
+name: cmnews-dev
+
+services:
+  postgres:
+    image: postgres:17.11-alpine
+    environment:
+      POSTGRES_DB: cmnews
+      POSTGRES_USER: cmnews
+      POSTGRES_PASSWORD: cmnews-dev-password
+    ports: ["127.0.0.1:55432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cmnews -d cmnews"]
+      interval: 5s
+      retries: 20
+
+  redis:
+    image: redis:8.2-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "192mb", "--maxmemory-policy", "noeviction"]
+    ports: ["127.0.0.1:56379:6379"]
+    volumes: [redisdata:/data]
+
+  opensearch:
+    build: ./opensearch
+    image: cmnews-opensearch:2.19.6
+    environment:
+      discovery.type: single-node
+      bootstrap.memory_lock: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+      DISABLE_SECURITY_PLUGIN: "true"
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 65536, hard: 65536 }
+    ports: ["127.0.0.1:59200:9200"]
+    volumes: [osdata:/usr/share/opensearch/data]
+
+volumes:
+  pgdata:
+  redisdata:
+  osdata:

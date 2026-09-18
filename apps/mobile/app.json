@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "CM News Tamil Nadu",
+    "slug": "cmnews-tamilnadu",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "cmnews",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#FFFFFF",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "in.blessl.cmnews"
+    },
+    "android": {
+      "package": "in.blessl.cmnews",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-web-browser",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "resizeMode": "contain",
+          "backgroundColor": "#FFFFFF",
+          "dark": {
+            "image": "./assets/splash-icon-dark.png",
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-image"
+    ],
+    "extra": {
+      "apiBaseUrl": "http://localhost:3000"
+    }
+  }
+}

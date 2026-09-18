@@ -2055,4 +2055,6 @@ This is an architecture and implementation planning document only.
 
 the app frontend should only be in the color black and white. use only the colors black and white (Important) 
 
+initially i need the news from May 4,2026 to September 18, 2026 to be rendered in our app and DB
+
 Implement this. code. make no mistakes.

@@ -1,0 +1,40 @@
+{
+	email {$ACME_EMAIL}
+	servers {
+		timeouts {
+			read_body 10s
+			read_header 10s
+			write 30s
+			idle 2m
+		}
+	}
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	# Metrics are for the monitoring system only; it reaches the API on the internal network.
+	@metrics path /metrics /metrics/*
+	respond @metrics 404
+
+	request_body {
+		max_size 64KB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	reverse_proxy api:3000 {
+		health_uri /health
+		health_interval 30s
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

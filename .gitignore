@@ -1,0 +1,20 @@
+# Dependencies and builds
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Secrets: never commit real environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+apps/backend/.env.development
+
+# Local database backups
+infrastructure/backup/*
+!infrastructure/backup/.gitkeep
+
+# Logs and OS noise
+*.log
+.DS_Store

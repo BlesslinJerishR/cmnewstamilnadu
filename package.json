@@ -1,0 +1,19 @@
+{
+  "name": "cmnews-tamilnadu",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Open source niche news aggregation for Tamil Nadu Chief Minister news, sourced from GDELT.",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/shared",
+    "apps/backend"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/shared && npm run build -w apps/backend",
+    "test": "npm test -w apps/backend",
+    "lint:types": "npm run typecheck -w apps/backend"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
