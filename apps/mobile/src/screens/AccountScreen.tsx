@@ -1,27 +1,52 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Button, Chip, T } from '../components/ui';
+import { CircleAlert } from 'lucide-react-native';
+import { Segmented } from '../components/chrome';
+import { Button, Icon, Text } from '../components/primitives';
 import { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../state/auth';
-import { spacing, useTheme } from '../theme/theme';
+import { borderWidth, color, layout, radius, space, text } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Account'>;
 
-/** Optional sign in / sign up. An account is only used to sync saved articles. */
+function Field({ label, hint, ...props }: React.ComponentProps<typeof TextInput> & { label: string; hint?: string }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <View style={{ gap: space[2] }}>
+      <Text variant="meta">{label}</Text>
+      <TextInput
+        {...props}
+        accessibilityLabel={label}
+        accessibilityHint={hint}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        selectionColor={color.fg}
+        cursorColor={color.fg}
+        placeholderTextColor={color.fgSubtle}
+        style={[styles.input, { borderColor: focused ? color.borderStrong : color.border, borderWidth: focused ? borderWidth.strong : borderWidth.hairline }]}
+      />
+      {hint ? (
+        <Text variant="meta" tone="subtle">
+          {hint}
+        </Text>
+      ) : null}
+    </View>
+  );
+}
+
+/** Optional sign in / create account. An account only syncs saved stories. */
 export function AccountScreen({ navigation }: Props) {
-  const { fg, bg } = useTheme();
   const auth = useAuth();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const input = { borderWidth: 2, borderColor: fg, color: fg, backgroundColor: bg, fontSize: 17, paddingHorizontal: spacing.md, paddingVertical: 10 } as const;
   const valid = /^\S+@\S+\.\S+$/.test(email.trim()) && password.length >= (mode === 'register' ? 10 : 1);
 
   const submit = async () => {
+    if (!valid || busy) return;
     setBusy(true);
     setError(null);
     try {
@@ -29,66 +54,69 @@ export function AccountScreen({ navigation }: Props) {
       else await auth.register(email.trim(), password);
       navigation.goBack();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={{ padding: spacing.lg }} keyboardShouldPersistTaps="handled">
-        <View style={{ flexDirection: 'row', marginBottom: spacing.lg }}>
-          <Chip label="Sign in" selected={mode === 'login'} onPress={() => setMode('login')} />
-          <Chip label="Create account" selected={mode === 'register'} onPress={() => setMode('register')} />
-        </View>
-        <T variant="meta" style={{ marginBottom: spacing.xs }}>
-          Email
-        </T>
-        <TextInput
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          autoComplete="email"
-          keyboardType="email-address"
-          textContentType="emailAddress"
-          accessibilityLabel="Email"
-          selectionColor={fg}
-          cursorColor={fg}
-          style={input}
-        />
-        <T variant="meta" style={{ marginTop: spacing.md, marginBottom: spacing.xs }}>
-          Password{mode === 'register' ? ' (at least 10 characters)' : ''}
-        </T>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          autoCapitalize="none"
-          autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-          textContentType={mode === 'login' ? 'password' : 'newPassword'}
-          accessibilityLabel="Password"
-          selectionColor={fg}
-          cursorColor={fg}
-          style={input}
-          onSubmitEditing={() => valid && !busy && void submit()}
-        />
-        {error ? (
-          <View style={{ borderWidth: 2, borderColor: fg, padding: spacing.md, marginTop: spacing.md }} accessibilityLiveRegion="assertive">
-            <T style={{ fontWeight: '700' }}>{error}</T>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: color.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <View style={styles.inner}>
+          <Text variant="display" accessibilityRole="header">
+            {mode === 'login' ? 'Welcome back' : 'Create account'}
+          </Text>
+          <Text variant="body" tone="muted">
+            Optional. An account keeps your saved stories in sync across devices.
+          </Text>
+          <Segmented
+            options={[
+              { key: 'login', label: 'Sign in' },
+              { key: 'register', label: 'Create account' },
+            ]}
+            value={mode}
+            onChange={(m) => {
+              setMode(m);
+              setError(null);
+            }}
+          />
+          <View style={{ gap: space[5], marginTop: space[2] }}>
+            <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" returnKeyType="next" />
+            <Field
+              label="Password"
+              hint={mode === 'register' ? 'At least 10 characters.' : undefined}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              textContentType={mode === 'login' ? 'password' : 'newPassword'}
+              returnKeyType="go"
+              onSubmitEditing={() => void submit()}
+            />
           </View>
-        ) : null}
-        <Button
-          label={busy ? 'Please wait…' : mode === 'login' ? 'Sign in' : 'Create account'}
-          onPress={() => void submit()}
-          disabled={!valid || busy}
-          style={{ marginTop: spacing.lg }}
-        />
-        <T variant="small" style={{ marginTop: spacing.lg }}>
-          An account is optional. It only keeps your saved articles in sync between devices. We store your email and a hashed
-          password, nothing else.
-        </T>
+          {error ? (
+            <View style={styles.error} accessibilityLiveRegion="assertive">
+              <Icon as={CircleAlert} size={18} />
+              <Text variant="bodySmall" style={{ flex: 1 }}>
+                {error}
+              </Text>
+            </View>
+          ) : null}
+          <Button size="lg" label={mode === 'login' ? 'Sign in' : 'Create account'} onPress={() => void submit()} disabled={!valid} loading={busy} style={{ marginTop: space[2] }} />
+          <Text variant="meta" tone="subtle" style={{ textAlign: 'center' }}>
+            We store your email and a hashed password. Nothing else.
+          </Text>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  content: { paddingBottom: space[12] },
+  inner: { width: '100%', maxWidth: 480, alignSelf: 'center', paddingHorizontal: layout.gutter, paddingTop: space[4], gap: space[4] },
+  input: { ...text.body, fontSize: 17, color: color.fg, minHeight: 52, paddingHorizontal: space[4], borderRadius: radius.md, backgroundColor: color.bg },
+  error: { flexDirection: 'row', gap: space[3], alignItems: 'flex-start', padding: space[4], borderWidth: borderWidth.hairline, borderColor: color.fg, borderRadius: radius.md },
+});

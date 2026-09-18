@@ -1,45 +1,73 @@
-import { FlatList, Pressable, View } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ArrowUpRight, LayoutGrid } from 'lucide-react-native';
 import { useCategories } from '../api/queries';
-import { OfflineBanner } from '../components/OfflineBanner';
-import { ErrorState, Loading, T } from '../components/ui';
-import { RootStackParamList } from '../navigation/types';
-import { spacing, useTheme } from '../theme/theme';
+import { AppHeader, EmptyState, ErrorState, FeedSkeleton, OfflineNotice } from '../components/chrome';
+import { Icon, Text } from '../components/primitives';
+import { useAppNavigation } from '../navigation/useAppNavigation';
+import { color, layout, space } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Tabs'>;
-
-export function CategoriesScreen({ navigation }: Props) {
-  const { fg, bg } = useTheme();
+/** Index of topics: a numbered editorial list, not a grid of coloured tiles. */
+export function CategoriesScreen() {
+  const navigation = useAppNavigation();
   const q = useCategories();
-  if (q.isPending) return <Loading />;
-  if (q.isError && !q.data) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
+  const items = (q.data?.items ?? []).filter((c) => c.slug !== 'general');
   return (
-    <View style={{ flex: 1, backgroundColor: bg }}>
-      <OfflineBanner />
-      <FlatList
-        data={q.data?.items ?? []}
-        keyExtractor={(c) => c.slug}
-        renderItem={({ item }) => (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => navigation.navigate('Category', { slug: item.slug, name: item.name })}
-            style={({ pressed }) => ({ backgroundColor: pressed ? fg : bg, borderBottomWidth: 1, borderBottomColor: fg, paddingHorizontal: spacing.lg, paddingVertical: spacing.lg })}
-          >
-            {({ pressed }) => (
-              <View>
-                <T variant="headline" style={{ color: pressed ? bg : fg }}>
-                  {item.name} →
-                </T>
-                {item.description ? (
-                  <T variant="small" style={{ color: pressed ? bg : fg, marginTop: 2 }}>
-                    {item.description}
-                  </T>
-                ) : null}
+    <View style={styles.screen}>
+      <AppHeader title="Topics" kicker="Browse by subject" />
+      <OfflineNotice />
+      {q.isPending ? (
+        <FeedSkeleton featured={false} rows={6} />
+      ) : q.isError && !q.data ? (
+        <ErrorState error={q.error} onRetry={() => void q.refetch()} />
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(c) => c.slug}
+          contentContainerStyle={{ paddingBottom: space[10] }}
+          ListEmptyComponent={<EmptyState icon={LayoutGrid} title="No topics" />}
+          renderItem={({ item, index }) => (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`${item.name}. ${item.description ?? ''}`}
+              onPress={() => navigation.navigate('Category', { slug: item.slug, name: item.name })}
+              style={({ pressed }) => [styles.row, pressed && { backgroundColor: color.surface }]}
+            >
+              <View style={styles.inner}>
+                <Text variant="meta" tone="subtle" style={styles.index}>
+                  {String(index + 1).padStart(2, '0')}
+                </Text>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text variant="section">{item.name}</Text>
+                  {item.description ? (
+                    <Text variant="bodySmall" tone="muted" numberOfLines={2}>
+                      {item.description}
+                    </Text>
+                  ) : null}
+                </View>
+                <Icon as={ArrowUpRight} size={18} />
               </View>
-            )}
-          </Pressable>
-        )}
-      />
+            </Pressable>
+          )}
+        />
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color.bg },
+  row: { width: '100%' },
+  inner: {
+    width: '100%',
+    maxWidth: layout.maxWidth,
+    alignSelf: 'center',
+    paddingHorizontal: layout.gutter,
+    paddingVertical: space[5],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[4],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.border,
+  },
+  index: { width: 22 },
+});

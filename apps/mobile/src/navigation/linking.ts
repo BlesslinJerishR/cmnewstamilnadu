@@ -26,6 +26,8 @@ export const linking: LinkingOptions<RootStackParamList> = {
       Source: 'source/:domain',
       Settings: 'settings',
       About: 'about',
+      Privacy: 'privacy',
+      Account: 'account',
     },
   },
 };

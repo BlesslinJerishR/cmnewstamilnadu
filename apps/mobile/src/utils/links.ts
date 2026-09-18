@@ -1,6 +1,6 @@
 import { Linking, Share } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
-import { BLACK, WHITE } from '../theme/theme';
+import { color } from '../theme/tokens';
 
 /** Only plain http(s) links from our API are ever opened. */
 export function isSafeWebUrl(url: string): boolean {
@@ -8,13 +8,13 @@ export function isSafeWebUrl(url: string): boolean {
 }
 
 /** Opens the publisher's original article in an in-app browser (black and white chrome). */
-export async function openArticle(url: string, dark: boolean): Promise<void> {
+export async function openArticle(url: string): Promise<void> {
   if (!isSafeWebUrl(url)) return;
   try {
     await WebBrowser.openBrowserAsync(url, {
-      toolbarColor: dark ? BLACK : WHITE,
-      controlsColor: dark ? WHITE : BLACK,
-      secondaryToolbarColor: dark ? BLACK : WHITE,
+      toolbarColor: color.bg,
+      controlsColor: color.fg,
+      secondaryToolbarColor: color.bg,
       enableBarCollapsing: true,
       showTitle: true,
     });

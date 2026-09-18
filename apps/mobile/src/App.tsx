@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { AppState, Platform } from 'react-native';
-import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { focusManager, onlineManager } from '@tanstack/react-query';
@@ -15,7 +15,7 @@ import { RootNavigator } from './navigation/RootNavigator';
 import { AuthProvider } from './state/auth';
 import { BookmarksProvider } from './state/bookmarks';
 import { SettingsProvider, useSettings } from './state/settings';
-import { ThemeProvider, useTheme } from './theme/theme';
+import { color } from './theme/tokens';
 
 // TanStack Query learns about connectivity and app focus from React Native.
 onlineManager.setEventListener((setOnline) => NetInfo.addEventListener((s) => setOnline(s.isConnected !== false)));
@@ -23,30 +23,21 @@ onlineManager.setEventListener((setOnline) => NetInfo.addEventListener((s) => se
 const queryClient = createQueryClient();
 const persister = createAsyncStoragePersister({ storage: AsyncStorage, key: QUERY_CACHE_KEY, throttleTime: 2000 });
 
-function Navigation() {
-  const theme = useTheme();
-  const navTheme = useMemo(() => {
-    const base = theme.dark ? DarkTheme : DefaultTheme;
-    return {
-      ...base,
-      colors: { primary: theme.fg, background: theme.bg, card: theme.bg, text: theme.fg, border: theme.fg, notification: theme.fg },
-    };
-  }, [theme]);
-  return (
-    <NavigationContainer theme={navTheme} linking={linking}>
-      <StatusBar style={theme.dark ? 'light' : 'dark'} />
-      <RootNavigator />
-    </NavigationContainer>
-  );
-}
+/** White-first navigation theme; every surface and text colour comes from the tokens. */
+const navTheme = {
+  ...DefaultTheme,
+  colors: { primary: color.fg, background: color.bg, card: color.bg, text: color.fg, border: color.border, notification: color.fg },
+};
 
-function Themed() {
+function Navigation() {
   const settings = useSettings();
+  // Wait for persisted settings (recent searches) so the first render is complete.
   if (!settings.loaded) return null;
   return (
-    <ThemeProvider appearance={settings.appearance}>
-      <Navigation />
-    </ThemeProvider>
+    <NavigationContainer theme={navTheme} linking={linking}>
+      <StatusBar style="dark" />
+      <RootNavigator />
+    </NavigationContainer>
   );
 }
 
@@ -75,7 +66,7 @@ export default function App() {
         <SettingsProvider>
           <AuthProvider>
             <BookmarksProvider>
-              <Themed />
+              <Navigation />
             </BookmarksProvider>
           </AuthProvider>
         </SettingsProvider>

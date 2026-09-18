@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, TextInput, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { useIsFocused } from '@react-navigation/native';
+import { ArrowUpRight, Clock, Search as SearchIcon, SearchX } from 'lucide-react-native';
 import { useSearch, useSuggestions } from '../api/queries';
-import { ArticleList } from '../components/ArticleList';
-import { OfflineBanner } from '../components/OfflineBanner';
-import { Chip, T } from '../components/ui';
+import { ArticleFeed } from '../components/ArticleFeed';
+import { AppHeader, OfflineNotice, SearchBar, Segmented } from '../components/chrome';
+import { Container, Icon, Text } from '../components/primitives';
 import { TabParamList } from '../navigation/types';
 import { useSettings } from '../state/settings';
-import { spacing, useTheme } from '../theme/theme';
+import { color, layout, space } from '../theme/tokens';
 
 type Props = BottomTabScreenProps<TabParamList, 'Search'>;
+
+const SUGGESTED = ['Free electricity', 'Cabinet', 'White paper', 'Women’s safety', 'Madurai'];
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -20,15 +24,33 @@ function useDebounced<T>(value: T, ms: number): T {
   return v;
 }
 
-/** Search runs on our server (OpenSearch); the app never queries any news provider. */
+/** Row used for recent searches, suggestions and example queries. */
+function QueryRow({ icon, label, onPress }: { icon: typeof Clock; label: string; onPress: () => void }) {
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={`Search ${label}`} onPress={onPress} style={({ pressed }) => [styles.queryRow, pressed && { backgroundColor: color.surface }]}>
+      <Icon as={icon} size={18} color={color.fgMuted} />
+      <Text variant="body" numberOfLines={2} style={{ flex: 1 }}>
+        {label}
+      </Text>
+      <Icon as={ArrowUpRight} size={16} color={color.fgSubtle} />
+    </Pressable>
+  );
+}
+
+/**
+ * Search runs entirely on our server (OpenSearch). Results are rendered in the order the API
+ * returns them; the app never re-ranks.
+ */
 export function SearchScreen({ route }: Props) {
-  const { fg, bg } = useTheme();
   const settings = useSettings();
+  const input = useRef<TextInput>(null);
+  const focused = useIsFocused();
   const [text, setText] = useState(route.params?.q ?? '');
   const [submitted, setSubmitted] = useState(route.params?.q ?? '');
   const [sort, setSort] = useState<'relevance' | 'latest'>('relevance');
-  const debounced = useDebounced(text, 300);
-  const suggestions = useSuggestions(debounced !== submitted ? debounced : '');
+  const debounced = useDebounced(text.trim(), 250);
+  const typing = text.trim().length >= 2 && text.trim() !== submitted;
+  const suggestions = useSuggestions(typing ? debounced : '');
   const results = useSearch(submitted, sort);
 
   useEffect(() => {
@@ -38,6 +60,13 @@ export function SearchScreen({ route }: Props) {
     }
   }, [route.params?.q]);
 
+  useEffect(() => {
+    if (focused && route.params?.focus) {
+      const t = setTimeout(() => input.current?.focus(), 250);
+      return () => clearTimeout(t);
+    }
+  }, [focused, route.params?.focus]);
+
   const submit = (q: string) => {
     const t = q.trim();
     setText(t);
@@ -46,88 +75,111 @@ export function SearchScreen({ route }: Props) {
     Keyboard.dismiss();
   };
 
-  const degraded = results.data?.pages[0]?.degraded;
-  const total = results.data?.pages[0]?.total;
-  const showSuggestions = text.trim().length >= 2 && text !== submitted && (suggestions.data?.suggestions.length ?? 0) > 0;
+  const first = results.data?.pages[0];
+  const hasQuery = submitted.length >= 2;
 
   return (
-    <View style={{ flex: 1, backgroundColor: bg }}>
-      <OfflineBanner />
-      <View style={{ padding: spacing.lg, paddingBottom: spacing.sm }}>
-        <T variant="meta" style={{ marginBottom: spacing.xs }}>
-          Search headlines
-        </T>
-        <TextInput
+    <View style={styles.screen}>
+      <AppHeader title="Search" kicker="Every story, one place" />
+      <OfflineNotice />
+      <Container style={styles.controls}>
+        <SearchBar
+          ref={input}
           value={text}
           onChangeText={setText}
           onSubmitEditing={() => submit(text)}
-          returnKeyType="search"
-          autoCorrect={false}
-          autoCapitalize="none"
-          clearButtonMode="while-editing"
-          accessibilityLabel="Search news"
-          selectionColor={fg}
-          cursorColor={fg}
-          style={{ borderWidth: 2, borderColor: fg, color: fg, backgroundColor: bg, fontSize: 17, paddingHorizontal: spacing.md, paddingVertical: 10 }}
+          onClear={() => {
+            setText('');
+            setSubmitted('');
+            input.current?.focus();
+          }}
+          placeholder="Search headlines"
         />
-        <View style={{ flexDirection: 'row', marginTop: spacing.sm }}>
-          <Chip label="Most relevant" selected={sort === 'relevance'} onPress={() => setSort('relevance')} />
-          <Chip label="Newest" selected={sort === 'latest'} onPress={() => setSort('latest')} />
-        </View>
-      </View>
+        {hasQuery && !typing ? (
+          <View style={styles.resultBar}>
+            <Text variant="meta" tone="muted" accessibilityLiveRegion="polite">
+              {first ? `${first.total.toLocaleString('en-IN')} result${first.total === 1 ? '' : 's'}` : ' '}
+            </Text>
+            <Segmented
+              options={[
+                { key: 'relevance', label: 'Relevant' },
+                { key: 'latest', label: 'Newest' },
+              ]}
+              value={sort}
+              onChange={setSort}
+            />
+          </View>
+        ) : null}
+        {first?.degraded ? (
+          <Text variant="meta" tone="subtle" style={{ marginTop: space[2] }}>
+            Simplified results while search is being restored.
+          </Text>
+        ) : null}
+      </Container>
 
-      {showSuggestions ? (
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ borderTopWidth: 1, borderTopColor: fg }}>
-          {suggestions.data!.suggestions.map((s) => (
-            <Pressable key={s} onPress={() => submit(s)} style={({ pressed }) => ({ padding: spacing.lg, borderBottomWidth: 1, borderBottomColor: fg, backgroundColor: pressed ? fg : bg })}>
-              {({ pressed }) => (
-                <T style={{ color: pressed ? bg : fg }} numberOfLines={2}>
-                  {s}
-                </T>
-              )}
-            </Pressable>
+      {typing ? (
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.list}>
+          <QueryRow icon={SearchIcon} label={text.trim()} onPress={() => submit(text)} />
+          {(suggestions.data?.suggestions ?? []).map((s) => (
+            <QueryRow key={s} icon={ArrowUpRight} label={s} onPress={() => submit(s)} />
           ))}
         </ScrollView>
-      ) : submitted.trim().length >= 2 ? (
-        <ArticleList
-          query={results}
-          header={
-            results.data ? (
-              <T variant="small" style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.sm }}>
-                {total ?? 0} result{total === 1 ? '' : 's'}
-                {degraded ? ' · limited search while the search service recovers' : ''}
-              </T>
-            ) : null
-          }
-          emptyTitle="No matches"
-          emptyMessage="Try different or fewer words."
-        />
+      ) : hasQuery ? (
+        <ArticleFeed query={results} empty={{ title: 'No matches', message: `Nothing found for “${submitted}”. Try fewer or different words.` }} />
       ) : (
-        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ padding: spacing.lg }}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.list}>
           {settings.recentSearches.length > 0 ? (
             <>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm }}>
-                <T variant="meta">Recent searches</T>
-                <Pressable onPress={settings.clearRecentSearches} hitSlop={10} accessibilityRole="button">
-                  <T variant="meta">Clear</T>
+              <View style={styles.groupHead}>
+                <Text variant="overline" tone="subtle">
+                  Recent
+                </Text>
+                <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={settings.clearRecentSearches} hitSlop={12} style={styles.clear}>
+                  <Text variant="meta">Clear</Text>
                 </Pressable>
               </View>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                {settings.recentSearches.map((q) => (
-                  <Chip key={q} label={q} onPress={() => submit(q)} />
-                ))}
-              </View>
+              {settings.recentSearches.map((q) => (
+                <QueryRow key={q} icon={Clock} label={q} onPress={() => submit(q)} />
+              ))}
             </>
-          ) : (
-            <>
-              <T>Search across all collected coverage of the Chief Minister and the Tamil Nadu government.</T>
-              <T variant="small" style={{ marginTop: spacing.sm }}>
-                Try: free electricity, cabinet, white paper, Madurai
-              </T>
-            </>
-          )}
+          ) : null}
+          <View style={styles.groupHead}>
+            <Text variant="overline" tone="subtle">
+              Try
+            </Text>
+          </View>
+          {SUGGESTED.map((q) => (
+            <QueryRow key={q} icon={SearchIcon} label={q} onPress={() => submit(q)} />
+          ))}
+          {settings.recentSearches.length === 0 && !hasQuery ? (
+            <View style={styles.hint}>
+              <Icon as={SearchX} size={16} color={color.fgSubtle} />
+              <Text variant="bodySmall" tone="subtle" style={{ flex: 1 }}>
+                Search looks through headlines and descriptions of every story we have collected.
+              </Text>
+            </View>
+          ) : null}
         </ScrollView>
       )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color.bg },
+  controls: { paddingBottom: space[3] },
+  resultBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space[3] },
+  list: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: layout.gutter, paddingBottom: space[10] },
+  queryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
+    minHeight: 52,
+    paddingVertical: space[2],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.border,
+  },
+  groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: space[6], paddingBottom: space[2] },
+  clear: { minHeight: 32, justifyContent: 'center' },
+  hint: { flexDirection: 'row', gap: space[2], paddingTop: space[6], alignItems: 'flex-start' },
+});

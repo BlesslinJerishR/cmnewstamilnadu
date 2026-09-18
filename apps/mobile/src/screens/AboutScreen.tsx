@@ -1,41 +1,57 @@
-import { ScrollView, View } from 'react-native';
-import { Button, Rule, T } from '../components/ui';
-import { spacing, useTheme } from '../theme/theme';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { ExternalLink } from 'lucide-react-native';
+import { Button, Divider, Text } from '../components/primitives';
+import { color, layout, space } from '../theme/tokens';
 import { openExternally } from '../utils/links';
 
-function P({ children }: { children: string }) {
-  return <T style={{ marginBottom: spacing.md }}>{children}</T>;
+function Block({ title, children }: { title: string; children: string }) {
+  return (
+    <View style={styles.block}>
+      <Text variant="overline" tone="subtle">
+        {title}
+      </Text>
+      <Text variant="body" style={{ marginTop: space[2] }}>
+        {children}
+      </Text>
+    </View>
+  );
 }
 
 export function AboutScreen() {
-  const { bg } = useTheme();
   return (
-    <ScrollView style={{ backgroundColor: bg }} contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xl * 2 }}>
-      <T variant="display" style={{ marginBottom: spacing.md }}>
-        CM News Tamil Nadu
-      </T>
-      <P>
-        An open source app that collects English-language news coverage about the Chief Minister of Tamil Nadu, C. Joseph Vijay,
-        and his government.
-      </P>
-      <P>
-        How it works: our server discovers coverage through the public GDELT Project, keeps only relevant articles using
-        transparent keyword rules, removes duplicates and syndicated copies, and sorts stories into categories. No artificial
-        intelligence is used anywhere.
-      </P>
-      <P>
-        We store and show only headlines, publisher names, dates and links. Every full story is read on the publisher's own
-        website, and all articles and images remain the property of their publishers.
-      </P>
-      <P>
-        Coverage is collected automatically, so an unrelated story can occasionally slip through. The app does not endorse any
-        publisher or viewpoint.
-      </P>
-      <Rule />
-      <View style={{ marginTop: spacing.lg, gap: spacing.sm }}>
-        <Button label="Source code (Apache-2.0)" variant="outline" onPress={() => void openExternally('https://github.com/BlesslinJerishR/CmNewsTamilnadu')} />
-        <Button label="The GDELT Project" variant="outline" onPress={() => void openExternally('https://www.gdeltproject.org/')} />
+    <ScrollView style={{ backgroundColor: color.bg }} contentContainerStyle={styles.content}>
+      <View style={styles.inner}>
+        <Text variant="display" accessibilityRole="header">
+          CM News
+        </Text>
+        <Text variant="body" tone="muted" style={{ marginTop: space[3] }}>
+          Focused, open source coverage of Tamil Nadu Chief Minister C. Joseph Vijay and his government.
+        </Text>
+        <Divider />
+        <Block title="How it works">
+          Our server discovers English news through the public GDELT Project, keeps only relevant stories using transparent
+          keyword rules, removes duplicates and syndicated copies, and sorts stories into topics. No artificial intelligence is
+          used anywhere.
+        </Block>
+        <Block title="Publishers first">
+          We show headlines, publisher names, times and links. Every full story is read on the publisher’s own website, and all
+          articles and images remain the property of their publishers.
+        </Block>
+        <Block title="Independence">
+          Coverage is collected automatically, so an unrelated story can occasionally slip through. The app does not endorse any
+          publisher or viewpoint.
+        </Block>
+        <View style={{ gap: space[3], marginTop: space[8] }}>
+          <Button label="Source code · Apache-2.0" variant="secondary" icon={ExternalLink} onPress={() => void openExternally('https://github.com/BlesslinJerishR/CmNewsTamilnadu')} />
+          <Button label="The GDELT Project" variant="secondary" icon={ExternalLink} onPress={() => void openExternally('https://www.gdeltproject.org/')} />
+        </View>
       </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  content: { paddingBottom: space[12] },
+  inner: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: layout.gutter, paddingTop: space[2], gap: space[4] },
+  block: { marginTop: space[4] },
+});

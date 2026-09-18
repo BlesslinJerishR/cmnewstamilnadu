@@ -58,6 +58,6 @@ function initials(label: string): string {
 const styles = StyleSheet.create({
   frame: { backgroundColor: color.surface, borderRadius: radius.md, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', isolation: 'isolate' },
   // "saturation" blending with a neutral colour strips hue: the photo shows in black and white.
-  desaturate: { backgroundColor: '#000000', mixBlendMode: 'saturation' },
+  desaturate: { backgroundColor: color.fg, mixBlendMode: 'saturation' },
   initial: { letterSpacing: 1 },
 });

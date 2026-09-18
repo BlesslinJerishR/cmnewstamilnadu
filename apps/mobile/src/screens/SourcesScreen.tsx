@@ -1,50 +1,70 @@
-import { FlatList, Pressable, View } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { ChevronRight, Newspaper } from 'lucide-react-native';
 import { useSources } from '../api/queries';
-import { ErrorState, Loading, T } from '../components/ui';
-import { RootStackParamList } from '../navigation/types';
-import { spacing, useTheme } from '../theme/theme';
+import { EmptyState, ErrorState, FeedSkeleton } from '../components/chrome';
+import { Icon, Text } from '../components/primitives';
+import { useAppNavigation } from '../navigation/useAppNavigation';
+import { color, layout, space } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Sources'>;
-
-export function SourcesScreen({ navigation }: Props) {
-  const { fg, bg } = useTheme();
+export function SourcesScreen() {
+  const navigation = useAppNavigation();
   const q = useSources();
-  if (q.isPending) return <Loading />;
+  if (q.isPending) return <FeedSkeleton featured={false} rows={6} />;
   if (q.isError && !q.data) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
   return (
     <FlatList
-      style={{ backgroundColor: bg }}
+      style={{ backgroundColor: color.bg }}
       data={q.data?.items ?? []}
       keyExtractor={(s) => s.domain}
+      contentContainerStyle={{ paddingBottom: space[10] }}
       ListHeaderComponent={
-        <T variant="small" style={{ padding: spacing.lg }}>
-          Publishers whose reporting appears in this app. Tap one to see its coverage.
-        </T>
+        <View style={styles.head}>
+          <Text variant="display" accessibilityRole="header">
+            Sources
+          </Text>
+          <Text variant="body" tone="muted">
+            Publishers whose reporting appears in the app, by number of stories.
+          </Text>
+        </View>
       }
+      ListEmptyComponent={<EmptyState icon={Newspaper} title="No sources yet" />}
       renderItem={({ item }) => (
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={`${item.name}, ${item.articleCount} stories`}
           onPress={() => navigation.navigate('Source', { domain: item.domain, name: item.name })}
-          style={({ pressed }) => ({ backgroundColor: pressed ? fg : bg, borderBottomWidth: 1, borderBottomColor: fg, padding: spacing.lg, flexDirection: 'row', justifyContent: 'space-between' })}
+          style={({ pressed }) => pressed && { backgroundColor: color.surface }}
         >
-          {({ pressed }) => (
-            <>
-              <View style={{ flex: 1 }}>
-                <T variant="headline" style={{ color: pressed ? bg : fg }}>
-                  {item.name}
-                </T>
-                <T variant="small" style={{ color: pressed ? bg : fg }}>
-                  {item.domain}
-                </T>
-              </View>
-              <T variant="meta" style={{ color: pressed ? bg : fg, alignSelf: 'center' }}>
-                {item.articleCount}
-              </T>
-            </>
-          )}
+          <View style={styles.row}>
+            <View style={{ flex: 1 }}>
+              <Text variant="label">{item.name}</Text>
+              <Text variant="meta" tone="subtle">
+                {item.domain}
+              </Text>
+            </View>
+            <Text variant="meta" tone="muted">
+              {item.articleCount}
+            </Text>
+            <Icon as={ChevronRight} size={18} />
+          </View>
         </Pressable>
       )}
     />
   );
 }
+
+const styles = StyleSheet.create({
+  head: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: layout.gutter, paddingTop: space[2], paddingBottom: space[4], gap: space[2] },
+  row: {
+    width: '100%',
+    maxWidth: layout.maxWidth,
+    alignSelf: 'center',
+    paddingHorizontal: layout.gutter,
+    minHeight: 64,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.border,
+  },
+});

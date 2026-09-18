@@ -5,7 +5,8 @@ export type TabParamList = {
   Home: undefined;
   Latest: undefined;
   Categories: undefined;
-  Search: { q?: string } | undefined;
+  /** `focus` is a timestamp: a new value asks the search field to take focus. */
+  Search: { q?: string; focus?: number } | undefined;
   Saved: undefined;
 };
 
@@ -16,6 +17,7 @@ export type RootStackParamList = {
   Source: { domain: string; name?: string };
   Settings: undefined;
   About: undefined;
+  Privacy: undefined;
   Account: undefined;
   Sources: undefined;
 };

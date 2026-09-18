@@ -2,7 +2,7 @@
 
 1. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The rules that matter most:
    GDELT is the only provider; PostgreSQL is the source of truth; OpenSearch is derived;
-   no AI/LLM/translation dependencies; the app UI uses only black (#000000) and white (#FFFFFF).
+   no AI/LLM/translation dependencies; the app UI uses only the tokens in `apps/mobile/src/theme/tokens.ts` (white, black, black at controlled opacity; photos in grayscale).
 2. Set up the dev environment as described in the README.
 3. Backend: `npm run build && npm test` must pass. Add unit tests for pipeline logic
    (normalisation, relevance, dedup, quality, categories) with real-world examples.

@@ -1,101 +1,192 @@
-import { Pressable, ScrollView, View } from 'react-native';
+import { useCallback, useLayoutEffect } from 'react';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useArticle } from '../api/queries';
-import { OfflineBanner } from '../components/OfflineBanner';
-import { Button, Chip, ErrorState, Loading, Rule, T } from '../components/ui';
+import { ArrowUpRight, ChevronRight, ExternalLink, Share2 } from 'lucide-react-native';
+import type { ArticleSummary } from '@cmnews/shared';
+import { useArticle, useCategoryLabel, useRelated } from '../api/queries';
+import { BookmarkButton, CompactArticle, SectionHeader } from '../components/article';
+import { ArticleSkeleton, ErrorState, OfflineNotice } from '../components/chrome';
+import { NewsImage } from '../components/NewsImage';
+import { Button, Container, Divider, Icon, IconButton, Text } from '../components/primitives';
 import { RootStackParamList } from '../navigation/types';
-import { useBookmarks } from '../state/bookmarks';
-import { spacing, useTheme } from '../theme/theme';
-import { formatIst } from '../utils/date';
+import { color, layout, space } from '../theme/tokens';
+import { formatIst, timeAgo } from '../utils/date';
 import { openArticle, shareArticle } from '../utils/links';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Article'>;
 
 /**
- * Article detail. We show the headline, publisher, time and a short description only;
- * the full story is always read on the publisher's own site.
+ * Story page: who published it, when, what it is, and where to read it. We show the
+ * headline, description and a monochrome preview image only; the full story stays with the
+ * publisher.
  */
 export function ArticleScreen({ route, navigation }: Props) {
-  const theme = useTheme();
-  const { fg, bg } = theme;
   const { id, summary } = route.params;
   const q = useArticle(id, summary);
-  const bookmarks = useBookmarks();
-
-  if (!q.data && q.isPending) return <Loading />;
-  if (!q.data) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
   const a = q.data;
-  const saved = bookmarks.isSaved(a.id);
+  const category = a?.categories[0];
+  const categoryLabel = useCategoryLabel(category);
+  const related = useRelated(category, id);
+  const openRelated = useCallback((r: ArticleSummary) => navigation.push('Article', { id: r.id, summary: r }), [navigation]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: '',
+      headerRight: () =>
+        a ? (
+          <View style={styles.headerActions}>
+            <BookmarkButton article={a} />
+            <IconButton icon={Share2} label="Share story" onPress={() => void shareArticle(a.title, a.url, a.sourceName)} />
+          </View>
+        ) : null,
+    });
+  }, [navigation, a]);
+
+  if (!a && q.isPending) return <ArticleSkeleton />;
+  if (!a) return <ErrorState error={q.error} onRetry={() => void q.refetch()} />;
 
   return (
-    <View style={{ flex: 1, backgroundColor: bg }}>
-      <OfflineBanner />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg, paddingBottom: spacing.xl * 2 }}>
-        <Pressable accessibilityRole="link" onPress={() => navigation.navigate('Source', { domain: a.sourceDomain, name: a.sourceName })} hitSlop={8}>
-          <T variant="meta" style={{ textDecorationLine: 'underline' }}>
-            {a.sourceName}
-          </T>
-        </Pressable>
-        <T variant="display" style={{ marginTop: spacing.sm }}>
-          {a.title}
-        </T>
-        <T variant="small" style={{ marginTop: spacing.sm }}>
-          {formatIst(a.publishedAt)}
-          {a.author ? ` · ${a.author}` : ''}
-        </T>
-        {a.categories.length > 0 ? (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.sm }}>
-            {a.categories.map((c) => (
-              <Chip key={c} label={c.replace(/-/g, ' ')} onPress={() => navigation.navigate('Category', { slug: c })} />
-            ))}
-          </View>
-        ) : null}
-        {a.description ? <T style={{ marginTop: spacing.lg }}>{a.description}</T> : null}
+    <View style={styles.screen}>
+      <OfflineNotice />
+      <ScrollView contentContainerStyle={styles.content}>
+        <Container>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`Publisher: ${a.sourceName}. View all stories from this publisher`}
+            onPress={() => navigation.navigate('Source', { domain: a.sourceDomain, name: a.sourceName })}
+            style={styles.source}
+            hitSlop={8}
+          >
+            <Text variant="meta" style={styles.sourceName}>
+              {a.sourceName}
+            </Text>
+            <Icon as={ChevronRight} size={14} strokeWidth={2} />
+          </Pressable>
 
-        <View style={{ marginTop: spacing.xl, gap: spacing.sm }}>
-          <Button label={`Read the full story at ${a.sourceName}`} onPress={() => void openArticle(a.url, theme.dark)} accessibilityHint="Opens the publisher's website" />
-          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-            <Button label={saved ? 'Saved ✓' : 'Save'} variant="outline" onPress={() => bookmarks.toggle(a)} style={{ flex: 1 }} />
-            <Button label="Share" variant="outline" onPress={() => void shareArticle(a.title, a.url, a.sourceName)} style={{ flex: 1 }} />
-          </View>
-        </View>
-
-        {a.alsoReportedBy.length > 0 ? (
-          <View style={{ marginTop: spacing.xl }}>
-            <Rule thick />
-            <T variant="meta" style={{ marginTop: spacing.md, marginBottom: spacing.xs }}>
-              Also reported by
-            </T>
-            {a.alsoReportedBy.map((r) => (
-              <Pressable
-                key={r.id}
-                accessibilityRole="link"
-                onPress={() => void openArticle(r.url, theme.dark)}
-                style={({ pressed }) => ({ paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: fg, backgroundColor: pressed ? fg : bg })}
-              >
-                {({ pressed }) => (
-                  <>
-                    <T variant="meta" style={{ color: pressed ? bg : fg }}>
-                      {r.sourceName}
-                    </T>
-                    <T style={{ color: pressed ? bg : fg }} numberOfLines={3}>
-                      {r.title}
-                    </T>
-                  </>
-                )}
+          <View style={styles.kicker}>
+            {categoryLabel ? (
+              <Pressable accessibilityRole="link" onPress={() => category && navigation.navigate('Category', { slug: category, name: categoryLabel })} hitSlop={8}>
+                <Text variant="overline">{categoryLabel}</Text>
               </Pressable>
-            ))}
+            ) : null}
+            <Text variant="overline" tone="subtle">
+              {categoryLabel ? '·  ' : ''}
+              {timeAgo(a.publishedAt)}
+            </Text>
           </View>
-        ) : null}
 
-        <View style={{ marginTop: spacing.xl }}>
-          <Rule />
-          <T variant="small" style={{ marginTop: spacing.sm }}>
-            Headline and link provided for reference. The article and any images belong to {a.sourceName}. This app aggregates
-            public news metadata and does not republish full articles.
-          </T>
-        </View>
+          <Text variant="display" style={styles.headline} accessibilityRole="header" maxFontSizeMultiplier={1.3}>
+            {a.title}
+          </Text>
+
+          {a.description ? (
+            <Text variant="body" tone="muted" style={styles.description}>
+              {a.description}
+            </Text>
+          ) : null}
+
+          <NewsImage uri={a.imageUrl} aspectRatio={16 / 10} fallbackLabel={a.sourceName} style={{ marginTop: space[6] }} />
+
+          <View style={styles.facts}>
+            <Fact label="Published" value={formatIst(a.publishedAt)} />
+            <Fact label="Publisher" value={`${a.sourceName}${a.sourceCountry ? ` · ${a.sourceCountry}` : ''}`} />
+            {a.author ? <Fact label="Author" value={a.author} /> : null}
+          </View>
+
+          <Button
+            size="lg"
+            label="Read original"
+            icon={ExternalLink}
+            onPress={() => void openArticle(a.url)}
+            accessibilityHint={`Opens the full story on ${a.sourceName}'s website`}
+          />
+          <Text variant="meta" tone="subtle" style={styles.ctaNote}>
+            Full story on {a.sourceDomain}
+          </Text>
+
+          {a.alsoReportedBy.length > 0 ? (
+            <View>
+              <SectionHeader title="Also reported by" subtitle={`${a.alsoReportedBy.length} more publisher${a.alsoReportedBy.length === 1 ? '' : 's'} covered this story`} />
+              {a.alsoReportedBy.map((r) => (
+                <Pressable
+                  key={r.id}
+                  accessibilityRole="link"
+                  accessibilityLabel={`${r.sourceName}: ${r.title}. Opens the publisher's website`}
+                  onPress={() => void openArticle(r.url)}
+                  style={({ pressed }) => [styles.coverage, pressed && { opacity: 0.6 }]}
+                >
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text variant="meta" style={styles.sourceName}>
+                      {r.sourceName}
+                    </Text>
+                    <Text variant="bodySmall" numberOfLines={2}>
+                      {r.title}
+                    </Text>
+                  </View>
+                  <Icon as={ArrowUpRight} size={18} />
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+
+          {related.data && related.data.length > 0 ? (
+            <View>
+              <SectionHeader
+                title={`More in ${categoryLabel ?? 'this topic'}`}
+                onSeeAll={category ? () => navigation.navigate('Category', { slug: category, name: categoryLabel ?? undefined }) : undefined}
+              />
+              {related.data.map((r) => (
+                <CompactArticle key={r.id} article={r} onPress={openRelated} showCategory={false} />
+              ))}
+            </View>
+          ) : null}
+
+          <View style={styles.attribution}>
+            <Divider />
+            <Text variant="bodySmall" tone="subtle" style={{ marginTop: space[4] }}>
+              Headline, description and image preview are shown for reference. The article belongs to {a.sourceName}; we do not
+              republish full stories.
+            </Text>
+          </View>
+        </Container>
       </ScrollView>
     </View>
   );
 }
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.fact}>
+      <Text variant="meta" tone="subtle" style={{ width: 88 }}>
+        {label}
+      </Text>
+      <Text variant="bodySmall" style={{ flex: 1 }}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: color.bg },
+  content: { paddingTop: space[2], paddingBottom: space[12] },
+  headerActions: { flexDirection: 'row', alignItems: 'center', marginRight: -space[2] },
+  source: { flexDirection: 'row', alignItems: 'center', gap: 2, alignSelf: 'flex-start', minHeight: 32 },
+  sourceName: { textTransform: 'uppercase', letterSpacing: 0.5 },
+  kicker: { flexDirection: 'row', alignItems: 'center', gap: space[2], marginTop: space[3] },
+  headline: { marginTop: space[3] },
+  description: { marginTop: space[4], fontSize: 17, lineHeight: 26 },
+  facts: { marginTop: space[5], marginBottom: space[6], borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: color.border },
+  fact: { flexDirection: 'row', paddingVertical: space[3], borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: color.border, gap: space[3] },
+  ctaNote: { textAlign: 'center', marginTop: space[2] },
+  coverage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space[3],
+    paddingVertical: space[4],
+    minHeight: layout.minTouch,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: color.border,
+  },
+  attribution: { marginTop: space[10] },
+});

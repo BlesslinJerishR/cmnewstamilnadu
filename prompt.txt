@@ -2058,3 +2058,1814 @@ the app frontend should only be in the color black and white. use only the color
 initially i need the news from May 4,2026 to September 18, 2026 to be rendered in our app and DB
 
 Implement this. code. make no mistakes.
+
+# React Native Mobile App Frontend Redesign
+
+You are a senior mobile product designer, UI/UX architect, and React Native frontend engineer.
+
+The application MVP is already successfully implemented and working.
+
+Your task is to completely improve and polish ONLY the React Native frontend.
+
+The application is a niche news aggregation application focused on news related to the Chief Minister of Tamil Nadu, C. Joseph Vijay.
+
+The backend, API, database, GDELT ingestion, search engine, relevance engine, authentication, queue system, and business logic are already implemented and working.
+
+Your responsibility is ONLY the React Native frontend experience.
+
+Do not redesign or modify backend architecture.
+
+Do not modify API contracts unless absolutely required for an existing frontend issue.
+
+Do not change business logic.
+
+Do not change data processing.
+
+Do not change GDELT integration.
+
+Do not change PostgreSQL.
+
+Do not change OpenSearch.
+
+Do not change BullMQ.
+
+Do not change Redis.
+
+Do not change authentication logic.
+
+Do not change navigation behavior unless required to improve the frontend UX.
+
+---
+
+# 1. PRIMARY DESIGN DIRECTION
+
+The new frontend should feel:
+
+* Premium
+* Minimal
+* Editorial
+* Modern
+* Sophisticated
+* High-end
+* Clean
+* Fast
+* Confident
+* Content-first
+* Extremely polished
+* Professional
+* Native to mobile
+* Production-grade
+
+The visual language should take inspiration from the design principles found in:
+
+* CRED
+* Next.js
+* shadcn/ui
+
+Do NOT copy their interfaces.
+
+Do NOT reproduce their exact layouts.
+
+Do NOT copy proprietary visual assets.
+
+Use their general design philosophy as inspiration:
+
+CRED:
+
+* premium feel
+* strong typography
+* generous whitespace
+* restrained visual language
+* high contrast
+* editorial composition
+* minimal visual noise
+
+Next.js:
+
+* clean layouts
+* excellent typography
+* strong hierarchy
+* minimal decoration
+* high information density without clutter
+
+shadcn/ui:
+
+* disciplined component design
+* consistent spacing
+* subtle borders
+* strong typography hierarchy
+* restrained radius
+* predictable interaction states
+* excellent visual consistency
+
+Combine these principles into an original mobile news interface.
+
+---
+
+# 2. COLOR SYSTEM
+
+The entire application must use ONLY:
+
+BLACK
+WHITE
+
+Do not introduce colored accents.
+
+Do not use:
+
+* blue
+* red
+* green
+* purple
+* orange
+* yellow
+* gradients
+* colorful backgrounds
+
+The dominant visual color must be WHITE.
+
+White should clearly overtake the interface.
+
+Think approximately:
+
+90% white
+10% black
+
+The exact ratio does not need to be mathematically enforced.
+
+Black should be used strategically for:
+
+* primary text
+* headings
+* icons
+* navigation
+* buttons
+* selected states
+* dividers
+* important metadata
+* emphasis
+* article imagery overlays where necessary
+
+White should dominate:
+
+* backgrounds
+* cards
+* article surfaces
+* navigation surfaces
+* screen backgrounds
+* spacing
+* visual breathing room
+
+Do NOT create a dark mode for this redesign unless the existing application already requires one.
+
+The target design is a premium white-first interface.
+
+---
+
+# 3. BLACK AND WHITE DOES NOT MEAN FLAT
+
+Although the palette is strictly black and white, create hierarchy through:
+
+* typography
+* font weight
+* font size
+* spacing
+* borders
+* dividers
+* opacity
+* shadows used extremely sparingly
+* surface separation
+* image composition
+* alignment
+* whitespace
+
+Do not use gray as a primary visual color.
+
+If the existing React Native implementation requires secondary text treatment, use controlled black opacity rather than introducing colored tones.
+
+For example conceptually:
+
+Primary:
+
+black
+
+Secondary:
+
+black with reduced opacity
+
+Background:
+
+white
+
+Inverse:
+
+white on black
+
+Keep the entire design visually monochromatic.
+
+---
+
+# 4. OVERALL VISUAL PERSONALITY
+
+The interface should feel like:
+
+"A premium financial product redesigned as a modern editorial news application."
+
+It should not feel like:
+
+* a generic news website
+* a typical RSS reader
+* a blog
+* a government portal
+* a social media feed
+* a template UI
+* a Material Design clone
+* a colorful news application
+
+Avoid excessive:
+
+* cards
+* shadows
+* rounded containers
+* badges
+* pills
+* gradients
+* icons
+* decorative elements
+
+The interface should breathe.
+
+Whitespace is a design element.
+
+---
+
+# 5. CORNER AND BORDER STYLE
+
+Use restrained corner radii.
+
+Avoid excessive rounded cards.
+
+Prefer:
+
+* square
+* slightly rounded
+* subtle radius
+
+Buttons should feel sharp and intentional.
+
+Do not use giant pill-shaped buttons unless there is a strong UX reason.
+
+Use thin black borders where appropriate.
+
+Avoid heavy outlines everywhere.
+
+---
+
+# 6. TYPOGRAPHY
+
+Typography is one of the most important parts of this redesign.
+
+Create a clear type hierarchy.
+
+Recommended conceptual hierarchy:
+
+Display headline:
+
+Large
+Bold
+Strong
+Tight line height
+
+Section title:
+
+Large
+Bold
+
+Article title:
+
+Medium to large
+Semibold/Bold
+
+Article description:
+
+Regular
+Comfortable line height
+
+Metadata:
+
+Small
+Medium
+High readability
+
+Navigation:
+
+Medium
+Semibold
+
+Buttons:
+
+Medium
+Semibold
+
+Do not use excessive font weights.
+
+Use typography to create hierarchy instead of decorative UI.
+
+---
+
+# 7. FONT STRATEGY
+
+Use the best appropriate font already available in the project.
+
+If a custom font is already installed, evaluate whether it fits the new design.
+
+If not, use a clean modern system font.
+
+The font must support:
+
+English
+
+and future Tamil content.
+
+Do not introduce an enormous collection of fonts.
+
+Prefer one primary typeface with weight variations.
+
+Typography must render correctly across Android and iOS.
+
+---
+
+# 8. SPACING SYSTEM
+
+Introduce a consistent spacing system.
+
+Use predictable spacing values throughout the application.
+
+For example conceptually:
+
+4
+8
+12
+16
+20
+24
+32
+40
+48
+
+Do not randomly use different spacing values in every screen.
+
+Create a consistent visual rhythm.
+
+Large whitespace should separate major sections.
+
+---
+
+# 9. ICONOGRAPHY
+
+Use ONLY Lucide icons if the project already supports Lucide.
+
+If an icon library is already installed, use it only if it provides the same visual consistency.
+
+Do not introduce random icon packs.
+
+Do not use emoji as icons.
+
+Do not use:
+
+* emoji
+* decorative Unicode symbols
+* random SVG icons
+* inconsistent icon styles
+
+Icons should be:
+
+* monochrome
+* simple
+* thin/medium stroke
+* visually consistent
+
+Do not overuse icons.
+
+---
+
+# 10. HOME SCREEN
+
+The Home screen should be the most polished screen in the application.
+
+It should immediately communicate:
+
+This is a premium, focused news product.
+
+Possible structure:
+
+Top navigation
+
+Brand / application name
+
+Search
+
+Profile/settings if applicable
+
+↓
+
+Featured/latest editorial section
+
+↓
+
+Latest News
+
+↓
+
+Category sections
+
+↓
+
+More news
+
+Do not make every article look like a separate floating card.
+
+Use editorial layouts.
+
+---
+
+# 11. HOME HEADER
+
+Create a clean top header.
+
+It should have:
+
+* brand identity
+* search action
+* optional profile/settings action
+
+Avoid large traditional app bars.
+
+The header should feel lightweight.
+
+Use whitespace.
+
+Potential visual concept:
+
+Brand
+
+small contextual label
+
+Search icon
+
+Settings/profile icon
+
+Do not overcrowd the header.
+
+---
+
+# 12. FEATURED ARTICLE
+
+Create a strong featured article treatment.
+
+The featured article should visually dominate the first content section.
+
+Potential structure:
+
+Large image
+
+Category
+
+Large headline
+
+Source
+
+Published time
+
+The headline should be the strongest text element.
+
+Avoid excessive metadata.
+
+Do not use a traditional "card with shadow".
+
+Use an editorial composition.
+
+---
+
+# 13. ARTICLE LIST
+
+Article lists should be clean and highly scannable.
+
+Each article can contain:
+
+Thumbnail
+
+Category
+
+Title
+
+Source
+
+Published time
+
+Avoid displaying too much metadata.
+
+The title is the priority.
+
+Use consistent thumbnail dimensions.
+
+Maintain strong vertical rhythm.
+
+Use subtle dividers rather than heavy cards.
+
+---
+
+# 14. ARTICLE CARD DESIGN
+
+Do not use:
+
+* heavy shadows
+* gradients
+* giant border radius
+* colorful category badges
+* excessive metadata
+* multiple icons
+* decorative elements
+
+Instead use:
+
+White background
+
+Black typography
+
+Minimal border/divider
+
+Strong title
+
+Small metadata
+
+Clean image
+
+Generous spacing
+
+---
+
+# 15. CATEGORY UI
+
+Categories should feel premium.
+
+Avoid a giant collection of colorful chips.
+
+Use monochrome navigation.
+
+Possible approaches:
+
+Horizontal scrolling category navigation
+
+or
+
+Simple text navigation
+
+Selected category:
+
+Black background
+White text
+
+Unselected category:
+
+White background
+Black text
+Minimal border if needed
+
+Keep the interaction obvious.
+
+---
+
+# 16. CATEGORY SCREEN
+
+The category screen should have:
+
+Large category title
+
+Description if applicable
+
+Featured article
+
+Article feed
+
+Filters if required
+
+Pagination/infinite scrolling
+
+The design should remain consistent with Home.
+
+---
+
+# 17. SEARCH SCREEN
+
+Search is a major part of the news application.
+
+Create a premium search experience.
+
+Search header:
+
+Large search field
+
+Black border
+
+White background
+
+Black text
+
+Lucide search icon
+
+Clear action
+
+Search results should use the same editorial article system.
+
+Do not make search feel like a generic form.
+
+---
+
+# 18. SEARCH RESULTS
+
+Prioritize:
+
+Title
+
+Source
+
+Date
+
+Relevant context
+
+Thumbnail
+
+Use strong typography.
+
+If OpenSearch relevance ranking is already returned from the API, preserve that ordering.
+
+Do not implement a new search algorithm in the frontend.
+
+The frontend should only render the backend's search results.
+
+---
+
+# 19. ARTICLE DETAIL SCREEN
+
+This should be one of the most polished screens.
+
+Recommended structure:
+
+Source
+
+Category
+
+Published time
+
+Large headline
+
+Description
+
+Hero image
+
+Article metadata
+
+Original article action
+
+Related articles
+
+The original publisher should be clearly identified.
+
+The user should understand:
+
+Who published this?
+
+When?
+
+What is the story?
+
+Where can I read the original?
+
+---
+
+# 20. ARTICLE DETAIL TYPOGRAPHY
+
+The headline should dominate.
+
+Use:
+
+large typography
+
+strong weight
+
+tight line height
+
+ample spacing
+
+Description should have comfortable readability.
+
+Metadata should be visually quiet.
+
+Do not overwhelm the user with UI controls.
+
+---
+
+# 21. ORIGINAL SOURCE CTA
+
+The original article action should feel premium.
+
+Example conceptual treatment:
+
+READ ORIGINAL
+
+Black button
+
+White text
+
+Sharp/subtle corners
+
+Lucide external-link icon
+
+Do not make it look like an advertisement.
+
+The source name should always remain visible.
+
+---
+
+# 22. RELATED NEWS
+
+At the bottom of article detail:
+
+Related News
+
+Use a clean article list.
+
+Related stories should not visually overpower the main article.
+
+Use consistent article components.
+
+---
+
+# 23. BOOKMARKS
+
+If bookmarks already exist, redesign them without changing their functionality.
+
+Bookmark screen:
+
+Large heading
+
+Saved article count if already supported
+
+Clean list
+
+Empty state
+
+Swipe interactions only if already supported and appropriate.
+
+Do not add unnecessary functionality.
+
+---
+
+# 24. SETTINGS
+
+Settings should use a minimalist layout.
+
+Sections:
+
+Language
+
+Notifications
+
+Appearance if applicable
+
+About
+
+Privacy
+
+Sources
+
+Version
+
+Use simple rows.
+
+Avoid large colorful settings cards.
+
+Use Lucide icons sparingly.
+
+---
+
+# 25. BOTTOM TAB NAVIGATION
+
+If the current application uses bottom tabs, redesign them.
+
+Keep navigation minimal.
+
+Possible destinations:
+
+Home
+
+Search
+
+Bookmarks
+
+Settings
+
+Use:
+
+Black icons
+
+White background
+
+Strong selected state
+
+Avoid large labels unless necessary.
+
+The selected state should be obvious without adding color.
+
+---
+
+# 26. LOADING STATES
+
+Do not show ugly default loading indicators everywhere.
+
+Use skeleton loading where appropriate.
+
+Skeletons must also follow:
+
+Black/white only.
+
+Do not use colorful shimmer animations.
+
+Keep animations subtle.
+
+---
+
+# 27. EMPTY STATES
+
+Design premium empty states.
+
+Examples:
+
+No search results
+
+No bookmarks
+
+No news available
+
+No connection
+
+Keep them simple.
+
+Use:
+
+Large typography
+
+Short explanation
+
+Minimal icon
+
+Optional action
+
+No illustrations unless they can be produced in the same monochrome design language.
+
+---
+
+# 28. ERROR STATES
+
+Errors should feel integrated into the design.
+
+Do not show ugly raw error messages.
+
+Provide:
+
+Clear explanation
+
+Retry action
+
+Relevant icon
+
+Simple layout
+
+Example:
+
+Unable to load news
+
+Check your connection and try again.
+
+RETRY
+
+Use black/white only.
+
+---
+
+# 29. OFFLINE EXPERIENCE
+
+If offline caching already exists:
+
+Show cached content naturally.
+
+If content is stale, communicate that subtly.
+
+Do not create large warning banners unless necessary.
+
+The app should remain usable.
+
+---
+
+# 30. PULL TO REFRESH
+
+Maintain native pull-to-refresh behavior.
+
+The refresh interaction should feel native to React Native.
+
+Do not add custom animations unless they materially improve the experience.
+
+---
+
+# 31. ANIMATIONS
+
+Animations should be subtle.
+
+Use animations for:
+
+* screen transitions
+* article appearance
+* bookmark interactions
+* search interactions
+* bottom navigation transitions
+* modal presentation
+
+Avoid:
+
+* excessive bouncing
+* flashy transitions
+* continuous animations
+* distracting motion
+
+Animation should communicate state, not decorate the application.
+
+---
+
+# 32. IMAGE TREATMENT
+
+News images should be treated consistently.
+
+Use:
+
+* consistent aspect ratios
+* controlled cropping
+* appropriate border radius
+* clean spacing
+
+Do not allow every image to have a different visual treatment.
+
+If an article has no image:
+
+Create a clean monochrome placeholder.
+
+Do not use random placeholder images.
+
+---
+
+# 33. RESPONSIVE MOBILE DESIGN
+
+The frontend must work properly across:
+
+Small Android phones
+
+Large Android phones
+
+Small iPhones
+
+Large iPhones
+
+Different screen densities
+
+Different safe area sizes
+
+Do not hardcode dimensions that break on other devices.
+
+Use responsive layout principles.
+
+---
+
+# 34. SAFE AREAS
+
+Respect:
+
+* status bar
+* notch
+* Dynamic Island
+* home indicator
+* Android navigation area
+
+Do not allow content to collide with device system UI.
+
+---
+
+# 35. ACCESSIBILITY
+
+Improve accessibility while redesigning.
+
+Ensure:
+
+* sufficient contrast
+* readable font sizes
+* accessible touch targets
+* screen reader labels
+* meaningful accessibility names
+* buttons distinguishable from static text
+
+Do not sacrifice accessibility for visual minimalism.
+
+---
+
+# 36. TOUCH TARGETS
+
+Interactive elements should have comfortable touch areas.
+
+Avoid tiny icon-only buttons.
+
+Icons should have adequate hit areas even when the visual icon itself is small.
+
+---
+
+# 37. COMPONENT SYSTEM
+
+Create a consistent frontend component system.
+
+Conceptual components:
+
+AppHeader
+
+SectionHeader
+
+ArticleCard
+
+FeaturedArticle
+
+CompactArticle
+
+CategorySelector
+
+SearchBar
+
+SourceLabel
+
+MetadataRow
+
+BookmarkButton
+
+PrimaryButton
+
+EmptyState
+
+ErrorState
+
+LoadingSkeleton
+
+BottomTabBar
+
+ScreenContainer
+
+Do not duplicate UI implementations across screens.
+
+Components should have a consistent visual language.
+
+---
+
+# 38. DESIGN TOKENS
+
+Create a conceptual design token system.
+
+Tokens should cover:
+
+Colors
+
+Typography
+
+Spacing
+
+Border widths
+
+Radius
+
+Shadows
+
+Icon sizes
+
+Animation duration
+
+Do not scatter magic numbers throughout the UI.
+
+The entire application should be controlled by a centralized visual system.
+
+---
+
+# 39. COLOR TOKENS
+
+The color system should be intentionally tiny.
+
+Primary background:
+
+White
+
+Primary foreground:
+
+Black
+
+Inverse background:
+
+Black
+
+Inverse foreground:
+
+White
+
+Border:
+
+Black with controlled opacity
+
+Muted text:
+
+Black with controlled opacity
+
+No other colors.
+
+---
+
+# 40. SHADOWS
+
+Use shadows extremely sparingly.
+
+Prefer:
+
+* whitespace
+* borders
+* typography
+* contrast
+
+over shadows.
+
+If shadows are used, keep them subtle and monochrome.
+
+---
+
+# 41. CARDS VS EDITORIAL LAYOUT
+
+This is a critical design rule.
+
+Do not turn every piece of content into a card.
+
+Use cards only where they improve usability.
+
+News should feel like an editorial publication.
+
+Think:
+
+headline
+
+image
+
+source
+
+timestamp
+
+divider
+
+next headline
+
+rather than:
+
+card
+
+card
+
+card
+
+card
+
+card
+
+---
+
+# 42. VISUAL DENSITY
+
+The app should balance information density and whitespace.
+
+The user should be able to scan many stories without feeling overwhelmed.
+
+Primary content:
+
+large
+
+Secondary information:
+
+small
+
+Decorative UI:
+
+minimal
+
+---
+
+# 43. FRONTEND PERFORMANCE
+
+Do not sacrifice performance for visual polish.
+
+Optimize:
+
+* FlatList
+* FlashList if already used/appropriate
+* image loading
+* image caching
+* memoization
+* unnecessary renders
+* navigation transitions
+* search debounce
+* list virtualization
+
+Do not rewrite working architecture unnecessarily.
+
+Only improve frontend implementation where needed.
+
+---
+
+# 44. API PRESERVATION
+
+Do not modify backend API behavior.
+
+The frontend must adapt to the existing API.
+
+Preserve:
+
+* endpoints
+* response structures
+* authentication
+* pagination
+* filtering
+* search behavior
+
+If an API change appears necessary, explain why before making architectural changes.
+
+---
+
+# 45. BUSINESS LOGIC PRESERVATION
+
+Do not change:
+
+* article relevance logic
+* GDELT logic
+* OpenSearch logic
+* categories
+* article processing
+* user authentication
+* bookmarks behavior
+* backend filtering
+
+Frontend redesign must not change product behavior.
+
+---
+
+# 46. NAVIGATION PRESERVATION
+
+Preserve existing navigation functionality.
+
+Improve:
+
+* visual hierarchy
+* transitions
+* headers
+* tab appearance
+* screen spacing
+
+Do not unnecessarily restructure navigation.
+
+---
+
+# 47. STATE MANAGEMENT
+
+Keep the existing state management architecture if it is already working.
+
+Do not replace a state management solution simply because a different library is popular.
+
+Only change it if the existing implementation directly prevents the new UI from being implemented cleanly.
+
+---
+
+# 48. NO UNNECESSARY DEPENDENCIES
+
+Do not add packages simply for visual effects.
+
+Before adding a dependency:
+
+Ask whether the same result can be achieved with the existing React Native stack.
+
+Avoid dependency bloat.
+
+Keep the application maintainable.
+
+---
+
+# 49. PLATFORM CONSISTENCY
+
+The UI should look consistent on:
+
+Android
+
+iOS
+
+Do not design exclusively around iOS.
+
+Do not design exclusively around Android.
+
+Use platform appropriate behavior while maintaining one visual identity.
+
+---
+
+# 50. PREMIUM MICRO DETAILS
+
+Pay attention to:
+
+* exact baseline alignment
+* consistent icon sizes
+* text wrapping
+* line heights
+* image cropping
+* divider placement
+* section spacing
+* button dimensions
+* touch targets
+* safe area spacing
+* navigation transitions
+* loading behavior
+* scroll behavior
+
+The difference between a normal application and a premium application is often in these details.
+
+---
+
+# 51. NEWS READING EXPERIENCE
+
+The user should be able to:
+
+Open app
+
+Immediately understand what is happening
+
+Scan headlines
+
+Identify important stories
+
+Open an article
+
+Understand the story quickly
+
+See the publisher
+
+Open the original source
+
+Return to the feed
+
+Search for another story
+
+Bookmark stories
+
+All with minimal friction.
+
+---
+
+# 52. FRONTEND ARCHITECTURE RULE
+
+Separate:
+
+UI
+
+Presentation logic
+
+API interaction
+
+Local state
+
+Navigation
+
+Reusable components
+
+Design tokens
+
+Do not put API calls directly into deeply nested visual components when avoidable.
+
+Keep the frontend maintainable.
+
+---
+
+# 53. DO NOT OVERDESIGN
+
+This is one of the most important requirements.
+
+Do NOT add:
+
+* giant gradients
+* glassmorphism
+* neon colors
+* colorful charts
+* excessive shadows
+* huge rounded cards
+* unnecessary animations
+* decorative illustrations
+* excessive badges
+* excessive icons
+* floating elements everywhere
+
+The application should feel expensive because it is restrained.
+
+---
+
+# 54. CRED INSPIRED DESIGN PRINCIPLES
+
+Take inspiration from the feeling of CRED:
+
+* premium
+* confident
+* monochrome
+* typography-led
+* high contrast
+* spacious
+* editorial
+* deliberate
+
+But do not copy CRED's interface.
+
+Create an original visual identity for the news application.
+
+---
+
+# 55. NEXT.JS INSPIRED DESIGN PRINCIPLES
+
+Take inspiration from modern Next.js design language:
+
+* minimal
+* clean
+* precise
+* typography-driven
+* high whitespace
+* sharp hierarchy
+* developer/product-grade polish
+
+Do not copy Next.js branding or layout.
+
+---
+
+# 56. SHADCN INSPIRED DESIGN PRINCIPLES
+
+Take inspiration from shadcn's design philosophy:
+
+* simple primitives
+* composable components
+* restrained borders
+* predictable spacing
+* typography hierarchy
+* minimal decoration
+* consistent interaction states
+
+Do not introduce shadcn itself unless the React Native project already uses a compatible implementation.
+
+The goal is to recreate the design philosophy, not copy the library.
+
+---
+
+# 57. IMPLEMENTATION APPROACH
+
+First inspect the existing React Native application.
+
+Understand:
+
+* project structure
+* screens
+* navigation
+* components
+* API layer
+* state management
+* existing design system
+* assets
+* fonts
+* image handling
+* caching
+* authentication
+
+Then identify:
+
+1. What can be preserved
+2. What should be redesigned
+3. What should be refactored
+4. What should be removed
+5. What reusable components should be created
+
+Do not immediately rewrite everything.
+
+Prefer a controlled frontend redesign.
+
+---
+
+# 58. FRONTEND REFACTORING RULE
+
+If existing code is messy:
+
+Refactor it where necessary.
+
+But do not rewrite working functionality without a reason.
+
+Prioritize:
+
+UI consistency
+
+reusability
+
+performance
+
+accessibility
+
+maintainability
+
+---
+
+# 59. SCREEN-BY-SCREEN REDESIGN
+
+Before implementation, define the visual system for:
+
+1. Splash
+2. Onboarding if present
+3. Home
+4. Latest News
+5. Category
+6. Search
+7. Search Results
+8. Article Detail
+9. Bookmarks
+10. Settings
+11. About
+12. Login/Register if present
+
+Every screen must feel like the same product.
+
+---
+
+# 60. FINAL DESIGN LANGUAGE
+
+The final product should feel like:
+
+A premium monochrome editorial news application.
+
+Visual formula:
+
+WHITE DOMINATES
+
+BLACK PROVIDES CONTRAST
+
+TYPOGRAPHY PROVIDES HIERARCHY
+
+WHITESPACE PROVIDES LUXURY
+
+IMAGES PROVIDE VISUAL ENERGY
+
+BORDERS PROVIDE STRUCTURE
+
+ICONS PROVIDE FUNCTION
+
+ANIMATION PROVIDES FEEDBACK
+
+Nothing unnecessary.
+
+---
+
+# 61. QUALITY BAR
+
+Do not stop at:
+
+"the UI works."
+
+The final frontend should feel:
+
+Production ready
+
+App Store ready
+
+Play Store ready
+
+Premium
+
+Cohesive
+
+Fast
+
+Accessible
+
+Responsive
+
+Polished
+
+Every screen should look intentionally designed.
+
+---
+
+# 62. VALIDATION CHECKLIST
+
+After redesigning the frontend, validate:
+
+## Visual
+
+* White dominates
+* Black provides contrast
+* No unintended colors
+* Typography is consistent
+* Spacing is consistent
+* Icons are consistent
+* Borders are consistent
+* Cards are restrained
+* No unnecessary decoration
+
+## UX
+
+* Navigation is obvious
+* Search is easy
+* Articles are easy to scan
+* Article detail is readable
+* Source is obvious
+* Original article action is obvious
+* Bookmarks are easy to use
+* Empty states are clear
+* Error states are useful
+
+## Technical
+
+* Existing API continues working
+* Existing business logic remains unchanged
+* Existing authentication remains unchanged
+* Existing search behavior remains unchanged
+* Existing bookmarks remain functional
+* Existing caching remains functional
+* No unnecessary dependencies
+* No significant performance regression
+
+## Accessibility
+
+* Touch targets are sufficient
+* Text is readable
+* Contrast is strong
+* Screen readers have useful labels
+
+## Performance
+
+* Lists remain smooth
+* Images do not cause excessive memory usage
+* Search remains responsive
+* Navigation remains smooth
+* No unnecessary rerenders
+
+---
+
+# 63. IMPORTANT: WHAT NOT TO CHANGE
+
+Do NOT modify:
+
+Backend
+
+NestJS
+
+Fastify
+
+PostgreSQL
+
+GDELT
+
+OpenSearch
+
+Redis
+
+BullMQ
+
+Server infrastructure
+
+Database schema
+
+News ingestion
+
+Relevance algorithm
+
+Deduplication algorithm
+
+Backend business rules
+
+External news provider
+
+The task is frontend-only.
+
+---
+
+# 64. FINAL IMPLEMENTATION OBJECTIVE
+
+Transform the existing React Native MVP into a polished premium mobile news application with this visual identity:
+
+PRIMARY:
+
+White
+
+SECONDARY:
+
+Black
+
+DESIGN:
+
+CRED-inspired premium restraint
+
+*
+
+Next.js-inspired minimalism
+
+*
+
+shadcn-inspired component discipline
+
+*
+
+Original editorial news experience
+
+The final application should feel:
+
+Minimal.
+
+Premium.
+
+Editorial.
+
+Fast.
+
+Confident.
+
+Monochrome.
+
+Modern.
+
+Not generic.
+
+Not template-like.
+
+Not overdesigned.
+
+---
+
+# FINAL INSTRUCTION
+
+First inspect the existing React Native frontend thoroughly.
+
+Then create a detailed frontend redesign plan based on the existing implementation.
+
+Identify the existing screens and components.
+
+Map each existing screen to the new visual system.
+
+Define the design tokens.
+
+Define reusable components.
+
+Define screen layouts.
+
+Define interaction states.
+
+Define loading states.
+
+Define error states.
+
+Define empty states.
+
+Define responsive behavior.
+
+Define accessibility requirements.
+
+Define performance requirements.
+
+Then implement the frontend redesign ONLY.
+
+Do not modify backend systems.
+
+Do not introduce AI.
+
+Do not introduce translation.
+
+Do not introduce new backend functionality.
+
+Do not change business logic.
+
+Do not replace working APIs.
+
+Do not change GDELT.
+
+Do not change OpenSearch.
+
+Do not change PostgreSQL.
+
+Do not change Redis.
+
+Do not change BullMQ.
+
+Do not create unnecessary dependencies.
+
+The final result should be a highly polished, premium, monochrome React Native news application where **white is the dominant canvas and black is used deliberately for contrast and hierarchy.**
+
+The visual language should be original but inspired by the restraint, polish, and design discipline associated with CRED, modern Next.js, and shadcn.

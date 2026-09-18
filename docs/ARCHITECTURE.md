@@ -16,7 +16,7 @@ A focused news aggregation app for coverage of Tamil Nadu Chief Minister C. Jose
   transactional outbox. Redis holds queues (BullMQ), response cache and rate-limit counters only.
 - **Modular monolith** (NestJS + Fastify, TypeScript): one codebase, two processes (`api`, `worker`).
 - **One 2 vCPU / 4 GB VPS**, Docker Compose, Caddy for TLS. Every data store is private.
-- **React Native (Expo) app**, strictly black and white, offline-capable, text-only cards.
+- **React Native (Expo) app**, white-first monochrome editorial design (black and white only, photos in grayscale), offline-capable.
 - **Initial load:** 4 May 2026 → 18 Sep 2026 via a resumable backfill created on first start.
 
 ## 2. Final technology stack
@@ -285,13 +285,22 @@ omitted. Read from PostgreSQL, cached 120 s. The app renders whatever it receive
 
 ## 22. React Native architecture
 
-Expo app (`apps/mobile`): React Navigation (tabs Home, Latest, Categories, Search, Saved; stack
-Article, Category, Source, Sources, Settings, About, Account), TanStack Query for data, AsyncStorage
-persistence, SecureStore for the session token, NetInfo for connectivity. Strictly **#000000 and
-#FFFFFF**: hierarchy via type weight/size/borders, pressed states invert colours, active tabs use
-filled icons + bold underlined labels, disabled buttons use dashed borders (no opacity greys).
-Publisher images are not displayed (keeps the UI black and white and avoids image licensing).
-Original articles open in an in-app browser; `cmnews://article/<id>` deep links.
+Expo app (`apps/mobile`): React Navigation (tabs Home, Latest, Topics, Search, Saved; stack
+Article, Category, Source, Sources, Settings, About, Privacy, Account), TanStack Query for data,
+AsyncStorage persistence, SecureStore for the session token, NetInfo for connectivity.
+
+**Design system** (`src/theme/tokens.ts`): a white-first monochrome editorial UI. Colours are
+white, black, and black at controlled opacity for secondary text, hairlines and surfaces; a
+4-point spacing scale; radius 0/2/4; one system typeface (SF / Roboto, both Tamil-capable) in a
+fixed type scale; Lucide icons only. Publisher photos are shown **in monochrome**: a saturation
+blend layer over `expo-image` (memory + disk cache, decoded at view size) removes colour on iOS and
+Android. Components (`src/components`): `AppHeader`, `SectionHeader`, `FeaturedArticle`,
+`CompactArticle`, `MetadataRow`, `CategorySelector`, `SearchBar`, `Segmented`, `BookmarkButton`,
+`Button`, `IconButton`, `NewsImage`, skeletons, `EmptyState`, `ErrorState`, `OfflineNotice`,
+`ArticleFeed` (virtualised feed with day grouping) and a custom `BottomTabBar` (selected tab marked
+by a black bar, heavier stroke and full-strength label). Touch targets are ≥44 pt, text scales with
+the system font size (capped), and every control has an accessibility role and label. Original
+articles open in an in-app browser; `cmnews://article/<id>` deep links.
 
 ## 23. Mobile caching
 

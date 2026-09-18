@@ -113,3 +113,21 @@ export function useCategories() {
 export function useSources() {
   return useQuery({ queryKey: keys.sources, queryFn: ({ signal }) => api.sources(signal), staleTime: 60 * MINUTE });
 }
+
+/** Human label for a category slug ("law-and-order" → "Law and Order"), from the cached list. */
+export function useCategoryLabel(slug?: string): string | null {
+  const { data } = useCategories();
+  if (!slug) return null;
+  return data?.items.find((c) => c.slug === slug)?.name ?? slug.replace(/-/g, ' ');
+}
+
+/** "More in <category>": the first page of the article's main category, minus the article itself. */
+export function useRelated(slug: string | undefined, excludeId: string) {
+  return useQuery({
+    queryKey: [...keys.category(slug ?? ''), 'related'],
+    queryFn: ({ signal }) => api.byCategory(slug!, undefined, signal),
+    enabled: !!slug,
+    staleTime: 5 * MINUTE,
+    select: (page) => page.items.filter((a) => a.id !== excludeId).slice(0, 5),
+  });
+}
