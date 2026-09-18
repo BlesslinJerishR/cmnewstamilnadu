@@ -45,7 +45,7 @@ export const FeaturedArticle = memo(function FeaturedArticle({ article, onPress,
       style={({ pressed }) => [styles.featured, pressed && styles.pressed]}
     >
       {/* Without a photo the lead becomes a pure typographic story rather than an empty frame. */}
-      {article.imageUrl ? <NewsImage uri={article.imageUrl} aspectRatio={16 / 10} fallbackLabel={article.sourceName} /> : null}
+      {article.imageUrl ? <NewsImage uri={article.imageUrl} aspectRatio={16 / 10} /> : null}
       <View style={[styles.featuredBody, !article.imageUrl && { marginTop: space[2] }]}>
         {showCategory ? <CategoryLabel slug={article.categories[0]} /> : null}
         <Text variant="display" numberOfLines={5} maxFontSizeMultiplier={1.3}>
@@ -89,7 +89,7 @@ export const CompactArticle = memo(function CompactArticle({
         <MetadataRow source={article.sourceName} publishedAt={article.publishedAt} />
       </View>
       <View style={styles.compactSide}>
-        <NewsImage uri={article.imageUrl} size={layout.thumb} fallbackLabel={article.sourceName} />
+        <NewsImage uri={article.imageUrl} size={layout.thumb} />
         {trailing}
       </View>
     </Pressable>

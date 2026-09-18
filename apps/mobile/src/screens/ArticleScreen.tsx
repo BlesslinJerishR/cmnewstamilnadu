@@ -85,7 +85,7 @@ export function ArticleScreen({ route, navigation }: Props) {
             </Text>
           ) : null}
 
-          <NewsImage uri={a.imageUrl} aspectRatio={16 / 10} fallbackLabel={a.sourceName} style={{ marginTop: space[6] }} />
+          <NewsImage uri={a.imageUrl} aspectRatio={16 / 10} style={{ marginTop: space[6] }} />
 
           <View style={styles.facts}>
             <Fact label="Published" value={formatIst(a.publishedAt)} />
