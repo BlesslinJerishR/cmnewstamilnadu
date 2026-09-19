@@ -15,6 +15,7 @@ import { RootNavigator } from './navigation/RootNavigator';
 import { AuthProvider } from './state/auth';
 import { BookmarksProvider } from './state/bookmarks';
 import { SettingsProvider, useSettings } from './state/settings';
+import { InAppUpdates } from './updates/InAppUpdates';
 import { color } from './theme/tokens';
 
 // TanStack Query learns about connectivity and app focus from React Native.
@@ -37,6 +38,8 @@ function Navigation() {
     <NavigationContainer theme={navTheme} linking={linking}>
       <StatusBar style="dark" />
       <RootNavigator />
+      {/* Google Play in-app updates (Android release builds only); prompts wait until onboarding is done. */}
+      <InAppUpdates promptsEnabled={settings.hasOnboarded} />
     </NavigationContainer>
   );
 }

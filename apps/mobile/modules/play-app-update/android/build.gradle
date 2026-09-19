@@ -1,0 +1,20 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.cmnewstn.playappupdate'
+version = '0.1.0'
+
+android {
+  namespace "com.cmnewstn.playappupdate"
+  defaultConfig {
+    versionCode 1
+    versionName "0.1.0"
+  }
+}
+
+dependencies {
+  // Official Google Play In-App Updates library (Play Core). Updates are delivered by Google Play.
+  implementation "com.google.android.play:app-update:2.1.0"
+}

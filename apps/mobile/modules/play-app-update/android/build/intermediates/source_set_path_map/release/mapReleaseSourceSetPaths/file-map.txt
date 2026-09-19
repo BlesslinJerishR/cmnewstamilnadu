@@ -1,0 +1,11 @@
+com.cmnewstn.playappupdate.play-app-update-coordinatorlayout-1.0.0-0 /home/blesslin/.gradle/caches/9.3.1/transforms/ab47ca252a74544f3f8b4ef72e2426a9/transformed/coordinatorlayout-1.0.0/res
+com.cmnewstn.playappupdate.play-app-update-core-common-2.0.3-1 /home/blesslin/.gradle/caches/9.3.1/transforms/c7dea79e2e477e76789022243b6b60ab/transformed/core-common-2.0.3/res
+com.cmnewstn.playappupdate.play-app-update-play-services-basement-18.1.0-2 /home/blesslin/.gradle/caches/9.3.1/transforms/cfd6e516776eae197a6153035b2313ff/transformed/play-services-basement-18.1.0/res
+com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3 /home/blesslin/.gradle/caches/9.3.1/transforms/d1d71d0d27eba83dcd7e84bc20b87493/transformed/core-1.2.0/res
+com.cmnewstn.playappupdate.play-app-update-pngs-4 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/build/generated/res/pngs/release
+com.cmnewstn.playappupdate.play-app-update-resValues-5 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/build/generated/res/resValues/release
+com.cmnewstn.playappupdate.play-app-update-mergeReleaseResources-6 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/build/intermediates/incremental/release/mergeReleaseResources/merged.dir
+com.cmnewstn.playappupdate.play-app-update-mergeReleaseResources-7 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/build/intermediates/incremental/release/mergeReleaseResources/stripped.dir
+com.cmnewstn.playappupdate.play-app-update-release-8 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/build/intermediates/merged_res/release/mergeReleaseResources
+com.cmnewstn.playappupdate.play-app-update-main-9 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/src/main/res
+com.cmnewstn.playappupdate.play-app-update-release-10 /home/blesslin/Documents/blessl.in/POST_HOSPITAL/CmNewsTamilnadu/apps/mobile/modules/play-app-update/android/src/release/res

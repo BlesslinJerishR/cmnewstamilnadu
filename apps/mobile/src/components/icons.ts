@@ -10,6 +10,7 @@ export { default as BookmarkCheck } from 'lucide-react-native/icons/bookmark-che
 export { default as ChevronRight } from 'lucide-react-native/icons/chevron-right';
 export { default as CircleAlert } from 'lucide-react-native/icons/circle-alert';
 export { default as Clock } from 'lucide-react-native/icons/clock';
+export { default as Download } from 'lucide-react-native/icons/download';
 export { default as Eraser } from 'lucide-react-native/icons/eraser';
 export { default as ExternalLink } from 'lucide-react-native/icons/external-link';
 export { default as Globe } from 'lucide-react-native/icons/globe';

@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout/custom_dialog.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout/notification_template_part_chronometer.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout/notification_template_part_time.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout/notification_template_part_time.xml"
+    }
+]

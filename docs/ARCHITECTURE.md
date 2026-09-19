@@ -317,6 +317,12 @@ by a black bar, heavier stroke and full-strength label). Touch targets are ≥44
 the system font size (capped), and every control has an accessibility role and label. Original
 articles open in an in-app browser; `cmnews://article/<id>` deep links.
 
+**In-app updates (Android):** Google Play In-App Updates via a local Expo module
+(`apps/mobile/modules/play-app-update`) and one app-level manager (`src/updates/`). Normal
+releases are flexible (background download, then "Restart now"); releases published with in-app
+update priority ≥ 4 use Google Play's immediate flow. Checks are deferred after launch and fail
+silently; no backend is involved. Release and testing steps: `apps/mobile/README.md`.
+
 ## 23. Mobile caching
 
 TanStack Query cache persisted to AsyncStorage for 7 days (busted on app version change):

@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/drawable/notification_bg.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/drawable/notification_bg.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/drawable/notification_icon_background.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/drawable/notification_icon_background.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/drawable/notification_bg_low.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/drawable/notification_bg_low.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/drawable/notification_tile_bg.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/drawable/notification_tile_bg.xml"
+    }
+]

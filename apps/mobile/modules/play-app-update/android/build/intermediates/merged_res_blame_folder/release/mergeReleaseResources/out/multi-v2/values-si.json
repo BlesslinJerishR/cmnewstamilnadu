@@ -1,0 +1,82 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.cmnewstn.playappupdate.play-app-update-release-7:/values-si/values-si.xml",
+            "map": [
+                {
+                    "source": "/home/blesslin/.gradle/caches/9.3.1/transforms/cfd6e516776eae197a6153035b2313ff/transformed/play-services-basement-18.1.0/res/values-si/values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "134",
+                        "endOffsets": "329"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "138",
+                        "endOffsets": "189"
+                    }
+                },
+                {
+                    "source": "/home/blesslin/.gradle/caches/9.3.1/transforms/d1d71d0d27eba83dcd7e84bc20b87493/transformed/core-1.2.0/res/values-si/values-si.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "194",
+                        "endColumns": "100",
+                        "endOffsets": "290"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "com.cmnewstn.playappupdate.play-app-update-mergeReleaseResources-5:/values-si/values-si.xml",
+            "map": [
+                {
+                    "source": "/home/blesslin/.gradle/caches/9.3.1/transforms/cfd6e516776eae197a6153035b2313ff/transformed/play-services-basement-18.1.0/res/values-si/values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "134",
+                        "endOffsets": "329"
+                    },
+                    "to": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "138",
+                        "endOffsets": "189"
+                    }
+                },
+                {
+                    "source": "/home/blesslin/.gradle/caches/9.3.1/transforms/d1d71d0d27eba83dcd7e84bc20b87493/transformed/core-1.2.0/res/values-si/values-si.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "100",
+                        "endOffsets": "151"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "194",
+                        "endColumns": "100",
+                        "endOffsets": "290"
+                    }
+                }
+            ]
+        }
+    ]
+}

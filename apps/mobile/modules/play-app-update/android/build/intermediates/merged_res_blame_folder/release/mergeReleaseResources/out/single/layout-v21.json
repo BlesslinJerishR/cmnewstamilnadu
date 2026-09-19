@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout-v21/notification_action_tombstone.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout-v21/notification_action_tombstone.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout-v21/notification_action.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout-v21/notification_action.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout-v21/notification_template_icon_group.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout-v21/notification_template_icon_group.xml"
+    },
+    {
+        "merged": "com.cmnewstn.playappupdate.play-app-update-release-7:/layout-v21/notification_template_custom_big.xml",
+        "source": "com.cmnewstn.playappupdate.play-app-update-core-1.2.0-3:/layout-v21/notification_template_custom_big.xml"
+    }
+]

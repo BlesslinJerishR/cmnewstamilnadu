@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChevronRight, Eraser, Info, Languages, LogOut, Newspaper, Shield, User } from '../components/icons';
 import { Icon, IconComponent, Text } from '../components/primitives';
-import { API_BASE_URL, APP_VERSION, QUERY_CACHE_KEY } from '../config';
+import { API_BASE_URL, APP_BUILD, APP_VERSION, QUERY_CACHE_KEY } from '../config';
 import { useAppNavigation } from '../navigation/useAppNavigation';
 import { useAuth } from '../state/auth';
 import { color, layout, space } from '../theme/tokens';
@@ -91,7 +91,7 @@ export function SettingsScreen() {
         <Group title="About">
           <Row icon={Info} label="About TNigazhvu" onPress={() => navigation.navigate('About')} />
           <Row icon={Shield} label="Privacy" onPress={() => navigation.navigate('Privacy')} />
-          <Row icon={Info} label="Version" value={APP_VERSION} />
+          <Row icon={Info} label="Version" value={Platform.OS === 'android' && APP_BUILD !== null ? `${APP_VERSION} (${APP_BUILD})` : APP_VERSION} />
         </Group>
 
         <Text variant="meta" tone="subtle" style={styles.server} selectable>

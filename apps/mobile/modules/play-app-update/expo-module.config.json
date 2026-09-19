@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["com.cmnewstn.playappupdate.PlayAppUpdateModule"]
+  }
+}

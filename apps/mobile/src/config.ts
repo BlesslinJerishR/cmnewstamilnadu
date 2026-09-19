@@ -26,6 +26,8 @@ const fromConfig = (Constants.expoConfig?.extra as { apiBaseUrl?: string } | und
 
 export const API_BASE_URL = (fromEnv || devServerApiUrl() || fromConfig || 'http://localhost:3000').replace(/\/+$/, '');
 export const APP_VERSION = Constants.expoConfig?.version ?? '0.0.0';
+/** Android versionCode (Google Play compares this, not APP_VERSION, to decide what is newer). */
+export const APP_BUILD: number | null = Constants.expoConfig?.android?.versionCode ?? null;
 
 /** AsyncStorage key of the persisted TanStack Query cache (offline news). */
 export const QUERY_CACHE_KEY = 'cmnews.query-cache.v1';
