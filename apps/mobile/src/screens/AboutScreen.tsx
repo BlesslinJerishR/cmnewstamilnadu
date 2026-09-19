@@ -1,5 +1,5 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { ExternalLink } from 'lucide-react-native';
+import { ExternalLink } from '../components/icons';
 import { Button, Divider, Text } from '../components/primitives';
 import { color, layout, space } from '../theme/tokens';
 import { openExternally } from '../utils/links';

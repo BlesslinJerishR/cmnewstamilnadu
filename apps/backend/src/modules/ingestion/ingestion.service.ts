@@ -3,7 +3,7 @@ import { APP_CONFIG, AppConfig } from '../../config/app-config';
 import { DatabaseService } from '../../infrastructure/database/database.service';
 import { JOBS, QUEUES } from '../../infrastructure/queue/queue.constants';
 import { QueueService } from '../../infrastructure/queue/queue.service';
-import { GdeltDocClient } from '../gdelt/gdelt-doc.client';
+import { GdeltDocClient, GdeltRateLimitedError } from '../gdelt/gdelt-doc.client';
 import { alignToGkgSlot, GdeltGkgClient, GKG_SLOT_MINUTES } from '../gdelt/gdelt-gkg.client';
 import { NichesService } from '../niches/niches.service';
 import { RawCandidate } from '../processing/candidate';
@@ -132,6 +132,12 @@ export class IngestionService {
       if (job.sliceId) await this.finishSlice(job.sliceId, 'done', result.candidates.length, result.candidates.length, null);
       return { runId: run, fetched: result.candidates.length };
     } catch (err) {
+      if (err instanceof GdeltRateLimitedError) {
+        // Not a failure: the window is retried after the cooldown. Keep run history meaningful.
+        await this.db.query('DELETE FROM ingestion_runs WHERE id = $1', [run]);
+        if (job.sliceId) await this.db.query(`UPDATE backfill_slices SET status = 'pending', attempts = GREATEST(attempts - 1, 0) WHERE id = $1`, [job.sliceId]);
+        throw err;
+      }
       const message = (err as Error).message.slice(0, 1000);
       await this.failRun(run, message);
       await this.db.query('UPDATE gdelt_queries SET last_error = $2 WHERE id = $1', [q.id, message]);
@@ -193,6 +199,10 @@ export class IngestionService {
       const data: ProcessBatchJob = { nicheId, runId, candidates: candidates.slice(i, i + PROCESS_CHUNK_SIZE) };
       await this.queues.add(QUEUES.PROCESSING, JOBS.PROCESS_BATCH, data, {
         priority: backfill ? PRIORITY_BACKFILL : PRIORITY_SCHEDULED,
+        // Batches carry up to 100 raw candidates; outcomes are already recorded in ingestion_runs,
+        // so keep only a short history in Redis (192 MB budget on the VPS).
+        removeOnComplete: { age: 3600, count: 20 },
+        removeOnFail: { age: 3 * 24 * 3600, count: 50 },
       });
     }
   }

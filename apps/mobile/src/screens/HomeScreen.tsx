@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
-import { Newspaper, Search, Settings } from 'lucide-react-native';
+import { Newspaper, Search, Settings } from '../components/icons';
 import type { ArticleSummary } from '@cmnews/shared';
 import { useCategories, useFeed } from '../api/queries';
 import { CompactArticle, FeaturedArticle, SectionHeader } from '../components/article';

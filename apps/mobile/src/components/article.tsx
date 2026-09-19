@@ -1,6 +1,6 @@
 import { memo, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
-import { Bookmark, BookmarkCheck, ChevronRight } from 'lucide-react-native';
+import { Bookmark, BookmarkCheck, ChevronRight } from './icons';
 import type { ArticleSummary } from '@cmnews/shared';
 import { useCategoryLabel } from '../api/queries';
 import { useBookmarks } from '../state/bookmarks';

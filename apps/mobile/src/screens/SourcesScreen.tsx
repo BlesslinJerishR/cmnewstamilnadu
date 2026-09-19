@@ -1,5 +1,5 @@
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import { ChevronRight, Newspaper } from 'lucide-react-native';
+import { ChevronRight, Newspaper } from '../components/icons';
 import { useSources } from '../api/queries';
 import { EmptyState, ErrorState, FeedSkeleton } from '../components/chrome';
 import { Icon, Text } from '../components/primitives';

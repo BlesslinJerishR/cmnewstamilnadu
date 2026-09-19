@@ -5,7 +5,15 @@ import { RedisService } from '../../infrastructure/redis/redis.module';
 import { RawCandidate } from '../processing/candidate';
 import { gdeltFetch } from './http';
 
-export class GdeltRateLimitedError extends Error {}
+/** GDELT asked us to slow down (or the shared request slot is held): retry after `retryAfterMs`. */
+export class GdeltRateLimitedError extends Error {
+  constructor(
+    message: string,
+    readonly retryAfterMs: number,
+  ) {
+    super(message);
+  }
+}
 export class GdeltMalformedResponseError extends Error {}
 export class GdeltQueryRejectedError extends Error {}
 export class GdeltUnavailableError extends Error {}
@@ -98,16 +106,24 @@ export class GdeltDocClient {
     return `${this.config.GDELT_DOC_API_URL}?${params.toString()}`;
   }
 
+  /**
+   * Takes the deployment-wide request slot. Normal spacing (one request per interval) is waited
+   * for inline; a longer hold (GDELT's rate-limit cooldown) is reported to the caller instead, so
+   * the queue can pause without keeping a worker busy or spending a retry attempt.
+   */
   private async acquireSlot(): Promise<void> {
     const interval = this.config.GDELT_MIN_REQUEST_INTERVAL_MS;
-    const deadline = Date.now() + Math.max(15 * 60 * 1000, this.config.GDELT_RATE_LIMIT_COOLDOWN_MS * 2);
-    while (Date.now() < deadline) {
+    const maxInlineWait = interval + 5_000;
+    const started = Date.now();
+    for (;;) {
       const ok = await this.redis.bullmq.set(SLOT_KEY, String(Date.now()), 'PX', interval, 'NX');
       if (ok === 'OK') return;
-      const ttl = await this.redis.bullmq.pttl(SLOT_KEY);
-      await new Promise((r) => setTimeout(r, Math.max(ttl, 250) + Math.floor(Math.random() * 250)));
+      const ttl = Math.max(await this.redis.bullmq.pttl(SLOT_KEY), 250);
+      if (Date.now() - started + ttl > maxInlineWait) {
+        throw new GdeltRateLimitedError('GDELT request slot held (rate-limit cooldown)', ttl);
+      }
+      await new Promise((r) => setTimeout(r, ttl + Math.floor(Math.random() * 250)));
     }
-    throw new GdeltRateLimitedError('Timed out waiting for a GDELT request slot');
   }
 
   /** After GDELT complains, hold the slot longer so every process backs off together. */
@@ -139,7 +155,7 @@ export class GdeltDocClient {
     }
     if (res.status === 429 || /limit requests to one every/i.test(body.slice(0, 300))) {
       await this.penalise(this.config.GDELT_RATE_LIMIT_COOLDOWN_MS);
-      throw new GdeltRateLimitedError('GDELT DOC API rate limit response');
+      throw new GdeltRateLimitedError('GDELT DOC API rate limit response', this.config.GDELT_RATE_LIMIT_COOLDOWN_MS);
     }
     if (res.status >= 500) throw new GdeltUnavailableError(`GDELT DOC API returned HTTP ${res.status}`);
     if (res.status >= 400) throw new GdeltQueryRejectedError(`GDELT DOC API returned HTTP ${res.status}: ${body.slice(0, 200)}`);

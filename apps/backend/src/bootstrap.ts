@@ -1,4 +1,4 @@
-import { Logger, LogLevel } from '@nestjs/common';
+import { ConsoleLogger, Logger, LogLevel } from '@nestjs/common';
 import { Pool } from 'pg';
 import { AppConfig } from './config/app-config';
 import { runMigrations } from './infrastructure/database/migrator';
@@ -6,6 +6,19 @@ import { runMigrations } from './infrastructure/database/migrator';
 export function logLevels(level: AppConfig['LOG_LEVEL']): LogLevel[] {
   const order: LogLevel[] = ['error', 'warn', 'log', 'debug', 'verbose'];
   return order.slice(0, order.indexOf(level) + 1);
+}
+
+/**
+ * Production logs are one JSON object per line (easy to grep, ship or parse); development keeps
+ * Nest's coloured human-readable format.
+ */
+export function createLogger(config: AppConfig, context?: string): ConsoleLogger {
+  const production = config.NODE_ENV === 'production';
+  return new ConsoleLogger(context ?? 'App', {
+    logLevels: logLevels(config.LOG_LEVEL),
+    json: production,
+    colors: !production,
+  });
 }
 
 /** Applies pending migrations (serialised by an advisory lock, so API and worker can both call it). */

@@ -157,36 +157,43 @@ export class SearchService {
     }
   }
 
-  /** PostgreSQL fallback: every word must appear in the headline (trigram-indexed ILIKE). */
+  /**
+   * PostgreSQL fallback: every word must appear in the headline. Each word is its own ILIKE
+   * condition so the trigram GIN index on normalized_title can be used (ILIKE ALL(array) cannot).
+   */
   async fallback(p: SearchParams): Promise<SearchResponse> {
     const words = toMatchText(p.q).split(' ').filter((w) => w.length > 1).slice(0, 8);
     const timeCursor = decodeCursor(p.cursor, isTimeCursor);
-    const patterns = words.map((w) => `%${w}%`);
+    const params: unknown[] = [
+      p.nicheId,
+      p.category ?? null,
+      p.source ?? null,
+      p.from?.toISOString() ?? null,
+      p.to?.toISOString() ?? null,
+      timeCursor?.p ?? null,
+      timeCursor?.i ?? '0',
+      p.limit + 1,
+    ];
+    const wordClauses = words.map((w) => {
+      params.push(`%${w.replace(/[%_\\]/g, '')}%`);
+      return `AND a.normalized_title ILIKE $${params.length}`;
+    });
     const rows = await this.db.query<SummaryRow>(
       `SELECT ${SUMMARY_COLUMNS}
          FROM articles a
         WHERE a.niche_id = $1 AND a.status = 'accepted'
-          AND a.normalized_title ILIKE ALL($2::text[])
-          AND ($3::text IS NULL OR EXISTS (
-                SELECT 1 FROM article_categories ac JOIN categories c ON c.id = ac.category_id
-                 WHERE ac.article_id = a.id AND c.slug = $3))
-          AND ($4::text IS NULL OR a.source_domain = $4)
-          AND ($5::timestamptz IS NULL OR a.published_at >= $5)
-          AND ($6::timestamptz IS NULL OR a.published_at < $6)
-          AND ($7::timestamptz IS NULL OR (a.published_at, a.id) < ($7::timestamptz, $8::bigint))
+          ${wordClauses.join('\n          ')}
+          AND ($2::text IS NULL OR EXISTS (
+                SELECT 1 FROM article_categories ac
+                 WHERE ac.article_id = a.id
+                   AND ac.category_id = (SELECT id FROM categories WHERE slug = $2 AND enabled)))
+          AND ($3::text IS NULL OR a.source_domain = $3)
+          AND ($4::timestamptz IS NULL OR a.published_at >= $4)
+          AND ($5::timestamptz IS NULL OR a.published_at < $5)
+          AND ($6::timestamptz IS NULL OR (a.published_at, a.id) < ($6::timestamptz, $7::bigint))
         ORDER BY a.published_at DESC, a.id DESC
-        LIMIT $9`,
-      [
-        p.nicheId,
-        patterns.length ? patterns : ['%'],
-        p.category ?? null,
-        p.source ?? null,
-        p.from?.toISOString() ?? null,
-        p.to?.toISOString() ?? null,
-        timeCursor?.p ?? null,
-        timeCursor?.i ?? '0',
-        p.limit + 1,
-      ],
+        LIMIT $8`,
+      params,
     );
     const page = rows.slice(0, p.limit);
     const last = page[page.length - 1];

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
-import { ArrowUpRight, Clock, Search as SearchIcon, SearchX } from 'lucide-react-native';
+import { ArrowUpRight, Clock, Search as SearchIcon, SearchX } from '../components/icons';
 import { useSearch, useSuggestions } from '../api/queries';
 import { ArticleFeed } from '../components/ArticleFeed';
 import { AppHeader, OfflineNotice, SearchBar, Segmented } from '../components/chrome';

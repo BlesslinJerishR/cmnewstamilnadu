@@ -28,6 +28,27 @@ export const DUPLICATE_WINDOW_HOURS = 36;
  *      of the same wire story published by different outlets.
  * The earliest stored article stays the representative; later copies point to it.
  */
+const NUMBER_TOKEN = /\b\d+\b/g;
+
+function numberTokens(title: string): string {
+  return [...new Set(title.match(NUMBER_TOKEN) ?? [])].sort().join(' ');
+}
+
+/**
+ * Deterministic guards for fuzzy (non-identical) headline matches:
+ *  - headlines whose numbers differ describe different facts ("500 crore" vs "200 crore",
+ *    "hospital 3" vs "hospital 4"), so they are never merged when both contain numbers;
+ *  - a headline that names the niche anchor (the Chief Minister) is never hidden behind one
+ *    that doesn't ("PM Modi congratulates" vs "CM Vijay congratulates").
+ */
+export function fuzzyMatchAllowed(candidateTitle: string, existingTitle: string, anchor: RegExp | null): boolean {
+  const a = numberTokens(candidateTitle);
+  const b = numberTokens(existingTitle);
+  if (a && b && a !== b) return false;
+  if (anchor && anchor.test(candidateTitle) && !anchor.test(existingTitle)) return false;
+  return true;
+}
+
 @Injectable()
 export class DeduplicationService {
   async findDuplicate(
@@ -36,10 +57,11 @@ export class DeduplicationService {
     article: NormalizedArticle,
     candidateStatuses: Array<'accepted' | 'pending_review'>,
     excludeId: string | null = null,
+    anchor: RegExp | null = null,
   ): Promise<DuplicateMatch | null> {
     const fuzzy = article.normalizedTitle.length >= NEAR_DUPLICATE_MIN_TITLE_LENGTH;
-    const rows = await db.query<{ id: string; source_domain: string; exact: boolean; sim: number }>(
-      `SELECT id, source_domain, (title_hash = $3) AS exact, similarity(normalized_title, $2)::float8 AS sim
+    const rows = await db.query<{ id: string; source_domain: string; normalized_title: string; exact: boolean; sim: number }>(
+      `SELECT id, source_domain, normalized_title, (title_hash = $3) AS exact, similarity(normalized_title, $2)::float8 AS sim
          FROM articles
         WHERE niche_id = $1
           AND status = ANY($6::text[])
@@ -57,7 +79,7 @@ export class DeduplicationService {
       if (row.exact) {
         return { duplicateOfId: row.id, reason: sameSource ? 'same_title_same_source' : 'syndicated_same_title', similarity: 1 };
       }
-      if (row.sim >= NEAR_DUPLICATE_SIMILARITY) {
+      if (row.sim >= NEAR_DUPLICATE_SIMILARITY && fuzzyMatchAllowed(article.normalizedTitle, row.normalized_title, anchor)) {
         return {
           duplicateOfId: row.id,
           reason: sameSource ? 'near_duplicate_same_source' : 'syndicated_near_duplicate',

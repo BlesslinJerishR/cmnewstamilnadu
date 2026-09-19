@@ -30,7 +30,8 @@ with HTTP 400 (validation, bad cursor), 401, 403, 404, 409, 429 (rate limit), 5x
 Outside `/api/v1`: `GET /health` (liveness), `GET /health/ready` (PostgreSQL/Redis/OpenSearch
 checks), `GET /metrics` (Prometheus, bearer `METRICS_TOKEN`, blocked at the public proxy).
 
-Rate limits: 120 requests/min per IP (10/min for `/auth/*`).
+Rate limits: 600 requests/min per IP by default (`RATE_LIMIT_MAX`; generous because mobile carriers
+share IPs across many users), 10/min for `/auth/*`.
 
 ## Admin (`role = admin`, bearer token)
 

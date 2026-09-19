@@ -5,14 +5,14 @@ import { DatabaseService } from '../infrastructure/database/database.service';
 import { JOBS, QUEUES, QueueName } from '../infrastructure/queue/queue.constants';
 import { QueueService } from '../infrastructure/queue/queue.service';
 import { RedisService } from '../infrastructure/redis/redis.module';
-import { GdeltQueryRejectedError } from '../modules/gdelt/gdelt-doc.client';
+import { GdeltQueryRejectedError, GdeltRateLimitedError } from '../modules/gdelt/gdelt-doc.client';
 import { IndexingService } from '../modules/indexing/indexing.service';
 import { DocWindowJob, GkgSlotJob, IngestionService, ProcessBatchJob } from '../modules/ingestion/ingestion.service';
 import { MaintenanceService } from '../modules/maintenance/maintenance.service';
 import { NichesService } from '../modules/niches/niches.service';
 import { ArticleProcessorService } from '../modules/processing/article-processor.service';
 
-type Handler = (job: Job) => Promise<unknown>;
+type Handler = (job: Job, worker: Worker) => Promise<unknown>;
 
 /**
  * Runs the BullMQ workers and registers the repeatable schedules.
@@ -47,7 +47,7 @@ export class WorkerRunnerService implements OnApplicationBootstrap, OnModuleDest
     // Two slots: the periodic cycle job plus one DOC fetch (DOC calls are serialised anyway).
     this.start(QUEUES.INGESTION, 2, {
       [JOBS.INGEST_CYCLE]: async () => ({ enqueued: await this.ingestion.enqueueCycle('scheduled') }),
-      [JOBS.FETCH_DOC_WINDOW]: async (job) => {
+      [JOBS.FETCH_DOC_WINDOW]: async (job, worker) => {
         const data = job.data as DocWindowJob;
         if (data.sliceId) {
           await this.maintenance.assertDiskNotCritical();
@@ -58,6 +58,12 @@ export class WorkerRunnerService implements OnApplicationBootstrap, OnModuleDest
         } catch (err) {
           // A query GDELT refuses (syntax, phrase too short) will never succeed on retry.
           if (err instanceof GdeltQueryRejectedError) throw new UnrecoverableError(err.message);
+          if (err instanceof GdeltRateLimitedError) {
+            // Pause the whole DOC queue until GDELT's cooldown ends. The job goes back to the
+            // queue without using an attempt, and no worker sits blocked while waiting.
+            await worker.rateLimit(err.retryAfterMs);
+            throw Worker.RateLimitError();
+          }
           throw err;
         }
       },
@@ -94,12 +100,12 @@ export class WorkerRunnerService implements OnApplicationBootstrap, OnModuleDest
   }
 
   private start(queue: QueueName, concurrency: number, handlers: Record<string, Handler>): void {
-    const worker = new Worker(
+    const worker: Worker = new Worker(
       queue,
       async (job) => {
         const handler = handlers[job.name];
         if (!handler) throw new UnrecoverableError(`No handler for job ${job.name} on ${queue}`);
-        return handler(job);
+        return handler(job, worker);
       },
       {
         connection: this.redis.bullmq,

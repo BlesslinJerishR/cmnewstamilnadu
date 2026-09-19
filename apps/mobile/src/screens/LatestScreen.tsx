@@ -1,5 +1,5 @@
 import { StyleSheet, View } from 'react-native';
-import { Search } from 'lucide-react-native';
+import { Search } from '../components/icons';
 import { useLatest } from '../api/queries';
 import { ArticleFeed } from '../components/ArticleFeed';
 import { AppHeader, OfflineNotice } from '../components/chrome';

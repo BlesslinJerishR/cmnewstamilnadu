@@ -1,7 +1,7 @@
 import { useLayoutEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Globe } from 'lucide-react-native';
+import { Globe } from '../components/icons';
 import { useSourceNews, useSources } from '../api/queries';
 import { ArticleFeed } from '../components/ArticleFeed';
 import { OfflineNotice } from '../components/chrome';

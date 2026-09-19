@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { Bookmark, Settings } from 'lucide-react-native';
+import { Bookmark, Settings } from '../components/icons';
 import type { ArticleSummary } from '@cmnews/shared';
 import { BookmarkButton, CompactArticle } from '../components/article';
 import { AppHeader, EmptyState } from '../components/chrome';

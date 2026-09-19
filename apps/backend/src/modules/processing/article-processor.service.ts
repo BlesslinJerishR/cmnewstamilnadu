@@ -3,7 +3,7 @@ import { DatabaseService, Queryable } from '../../infrastructure/database/databa
 import { QueueService } from '../../infrastructure/queue/queue.service';
 import { JOBS, QUEUES } from '../../infrastructure/queue/queue.constants';
 import { CategoryAssignment } from '../categories/category.classifier';
-import { DeduplicationService, DuplicateMatch } from '../deduplication/deduplication.service';
+import { DeduplicationService, DuplicateMatch, fuzzyMatchAllowed } from '../deduplication/deduplication.service';
 import { writeOutbox } from '../indexing/outbox';
 import { NichesService, PipelineContext } from '../niches/niches.service';
 import { assessQuality, QualityResult } from '../quality/quality.filter';
@@ -123,6 +123,8 @@ export class ArticleProcessorService {
         nicheId,
         article,
         provisional === 'accepted' ? ['accepted'] : ['accepted', 'pending_review'],
+        null,
+        ctx.anchor,
       );
     }
     const status = decideStatus(relevance.status, quality.status, duplicate);
@@ -257,8 +259,17 @@ export class ArticleProcessorService {
     // if that representative was rejected, the copy is judged on its own again.
     let keepDuplicateOf: string | null = null;
     if (row.duplicate_of_id) {
-      const rep = await this.db.one<{ status: ArticleStatus }>('SELECT status FROM articles WHERE id = $1', [row.duplicate_of_id]);
-      if (rep && (rep.status === 'accepted' || rep.status === 'pending_review')) keepDuplicateOf = row.duplicate_of_id;
+      const rep = await this.db.one<{ status: ArticleStatus; normalized_title: string }>(
+        'SELECT status, normalized_title FROM articles WHERE id = $1',
+        [row.duplicate_of_id],
+      );
+      const repVisible = rep && (rep.status === 'accepted' || rep.status === 'pending_review');
+      // Fuzzy (non-identical headline) matches are re-checked so improved guards also repair
+      // decisions made before they existed.
+      const fuzzy = (row.duplicate_reason ?? '').includes('near_duplicate');
+      if (repVisible && (!fuzzy || fuzzyMatchAllowed(row.normalized_title, rep.normalized_title, ctx.anchor))) {
+        keepDuplicateOf = row.duplicate_of_id;
+      }
     }
     if (row.manual_status) {
       status = row.manual_status;
@@ -273,6 +284,7 @@ export class ArticleProcessorService {
           article,
           provisional === 'accepted' ? ['accepted'] : ['accepted', 'pending_review'],
           row.id,
+          ctx.anchor,
         );
         // The earliest article stays the representative; never demote it in favour of a later copy.
         if (duplicate && BigInt(duplicate.duplicateOfId) > BigInt(row.id)) duplicate = null;

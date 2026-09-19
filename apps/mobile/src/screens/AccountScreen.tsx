@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CircleAlert } from 'lucide-react-native';
+import { CircleAlert } from '../components/icons';
 import { Segmented } from '../components/chrome';
 import { Button, Icon, Text } from '../components/primitives';
 import { RootStackParamList } from '../navigation/types';

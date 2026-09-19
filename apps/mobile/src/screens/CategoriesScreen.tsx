@@ -1,5 +1,5 @@
 import { FlatList, Pressable, StyleSheet, View } from 'react-native';
-import { ArrowUpRight, LayoutGrid } from 'lucide-react-native';
+import { ArrowUpRight, LayoutGrid } from '../components/icons';
 import { useCategories } from '../api/queries';
 import { AppHeader, EmptyState, ErrorState, FeedSkeleton, OfflineNotice } from '../components/chrome';
 import { Icon, Text } from '../components/primitives';

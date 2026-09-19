@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ChevronRight, Eraser, Info, Languages, LogOut, Newspaper, Shield, User } from 'lucide-react-native';
+import { ChevronRight, Eraser, Info, Languages, LogOut, Newspaper, Shield, User } from '../components/icons';
 import { Icon, IconComponent, Text } from '../components/primitives';
 import { API_BASE_URL, APP_VERSION, QUERY_CACHE_KEY } from '../config';
 import { useAppNavigation } from '../navigation/useAppNavigation';
@@ -89,7 +89,7 @@ export function SettingsScreen() {
         </Group>
 
         <Group title="About">
-          <Row icon={Info} label="About CM News" onPress={() => navigation.navigate('About')} />
+          <Row icon={Info} label="About TNigazhvu" onPress={() => navigation.navigate('About')} />
           <Row icon={Shield} label="Privacy" onPress={() => navigation.navigate('Privacy')} />
           <Row icon={Info} label="Version" value={APP_VERSION} />
         </Group>

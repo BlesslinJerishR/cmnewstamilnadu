@@ -89,3 +89,26 @@ describe('pre-swearing-in coverage', () => {
     expect(score("What is the meaning of Karuppu? Decoding the title of Suriya and Trisha Krishnan's new film", { url: 'https://x.in/entertainment/tamil/karuppu' }).status).not.toBe('relevant');
   });
 });
+
+describe('entity matching', () => {
+  it('never matches a phrase across two different entities', () => {
+    const r = score('Chhattisgarh CM Vishnu Deo Sai unveils Viksit Chhattisgarh 2047 vision', {
+      url: 'https://www.bignewsnetwork.com/news/279050512/chhattisgarh-cm-vishnu-deo-sai-unveils-vision',
+      entities: 'seva sankalp ; Chhattisgarh Chief Minister ; vijay sharma ; narendra modi',
+    });
+    expect(r.signals.map((s) => s.rule)).not.toContain('chief-minister-vijay');
+    expect(r.status).not.toBe('relevant');
+  });
+  it('still matches within a single entity', () => {
+    const r = score('MV Karuppaiah sworn in as protem Speaker of Tamil Nadu Assembly', { entities: 'dravidar kazhagam ; chief minister vijay ; tamil nadu' });
+    expect(r.signals.map((s) => s.rule)).toContain('chief-minister-vijay');
+  });
+});
+
+describe('deputy chief ministers named Vijay', () => {
+  it('does not treat them as the Tamil Nadu CM', () => {
+    const r = score('Chhattisgarh CM Vishnu Deo Sai unveils vision document', { entities: 'Chief Minister Vijay Sharma ; Chhattisgarh Chief Minister Vishnu Deo Sai' });
+    expect(r.status).not.toBe('relevant');
+    expect(score('Deputy Chief Minister Vijay Sharma reviews Naxal operations').status).toBe('irrelevant');
+  });
+});

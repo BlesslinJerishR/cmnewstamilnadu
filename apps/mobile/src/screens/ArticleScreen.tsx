@@ -1,7 +1,7 @@
 import { useCallback, useLayoutEffect } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { ArrowUpRight, ChevronRight, ExternalLink, Share2 } from 'lucide-react-native';
+import { ArrowUpRight, ChevronRight, ExternalLink, Share2 } from '../components/icons';
 import type { ArticleSummary } from '@cmnews/shared';
 import { useArticle, useCategoryLabel, useRelated } from '../api/queries';
 import { BookmarkButton, CompactArticle, SectionHeader } from '../components/article';

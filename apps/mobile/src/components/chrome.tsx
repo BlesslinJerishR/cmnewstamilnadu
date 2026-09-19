@@ -1,9 +1,8 @@
-import { forwardRef, ReactNode, useEffect, useRef } from 'react';
+import { forwardRef, ReactNode, useEffect, useRef, useSyncExternalStore } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CircleAlert, Search, WifiOff, X } from 'lucide-react-native';
-import NetInfo from '@react-native-community/netinfo';
-import { useState } from 'react';
+import { CircleAlert, Search, WifiOff, X } from './icons';
+import { onlineManager } from '@tanstack/react-query';
 import { borderWidth, color, duration, layout, radius, space, text } from '../theme/tokens';
 import { Button, Container, Icon, IconComponent, Text } from './primitives';
 
@@ -213,10 +212,16 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
   );
 }
 
+/**
+ * Connectivity from TanStack Query's onlineManager, which App.tsx feeds from a single NetInfo
+ * subscription; every screen shares it instead of opening its own listener.
+ */
 export function useIsOnline(): boolean {
-  const [online, setOnline] = useState(true);
-  useEffect(() => NetInfo.addEventListener((s) => setOnline(s.isConnected !== false)), []);
-  return online;
+  return useSyncExternalStore(
+    (cb) => onlineManager.subscribe(cb),
+    () => onlineManager.isOnline(),
+    () => true,
+  );
 }
 
 /** Quiet one-line notice while offline; cached stories stay fully usable underneath. */

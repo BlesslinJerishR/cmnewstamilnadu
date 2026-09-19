@@ -4736,3 +4736,3753 @@ The entire experience must use a **white-first, black-only premium visual system
 generate a single simple, clean and minimalistic logo of elephant, tiger and lion
 
 TNigazhvu
+
+# MASTER PROMPT: FULL STACK PERFORMANCE, ARCHITECTURE AND CODE QUALITY OPTIMIZATION
+
+You are working on an existing open source news aggregation application.
+
+Your job is to perform a **deep engineering audit and optimization of the entire existing application**, covering both:
+
+1. Backend
+2. React Native mobile frontend
+
+Do NOT blindly rewrite the application.
+
+First understand the existing implementation, architecture, data flow, APIs, database schema, background jobs, search implementation, caching, navigation, screens, components, state management, and deployment assumptions.
+
+Then identify bottlenecks, unnecessary complexity, duplicated logic, inefficient queries, memory problems, unnecessary network requests, rendering problems, poor error handling, race conditions, security issues, and maintainability problems.
+
+After that, implement the improvements.
+
+---
+
+# 1. MOST IMPORTANT RULES
+
+## Preserve the existing product
+
+Do NOT change the core purpose of the application.
+
+This is a niche news aggregation application.
+
+The application currently:
+
+GDELT
+→ Backend ingestion
+→ Relevance filtering
+→ Deduplication
+→ PostgreSQL
+→ OpenSearch
+→ API
+→ React Native mobile application
+
+The backend is responsible for fetching and processing news.
+
+The React Native application consumes the backend APIs.
+
+Do NOT move backend responsibilities into the mobile application.
+
+Do NOT allow the mobile application to communicate directly with GDELT, PostgreSQL, Redis, OpenSearch, or any internal infrastructure.
+
+The mobile application must communicate only with the backend API.
+
+---
+
+# 2. EXISTING TECHNOLOGY STACK
+
+Preserve the existing technology choices unless there is a very strong engineering reason to change something.
+
+## Backend
+
+NestJS
+
+Fastify adapter
+
+TypeScript
+
+PostgreSQL
+
+Redis
+
+BullMQ
+
+OpenSearch
+
+GDELT
+
+## Frontend
+
+React Native
+
+Use the existing React Native architecture and navigation system where practical.
+
+Do not introduce a completely different frontend framework.
+
+---
+
+# 3. MVP SCOPE MUST REMAIN THE SAME
+
+Do NOT introduce:
+
+AI
+
+LLMs
+
+Embeddings
+
+Vector databases
+
+AI classification
+
+AI summarization
+
+AI translation
+
+Microservices
+
+Kubernetes
+
+GraphQL unless the existing project already uses it and there is a compelling reason to retain it
+
+Unnecessary third-party services
+
+Unnecessary infrastructure
+
+Do not turn this into an enterprise distributed system just because it is technically possible.
+
+The goal is:
+
+HIGH PERFORMANCE
+LOW RESOURCE USAGE
+LOW COMPLEXITY
+HIGH RELIABILITY
+GOOD UX
+CLEAN CODE
+EASY MAINTENANCE
+
+---
+
+# 4. FIRST STEP: DEEP PROJECT AUDIT
+
+Before modifying anything, inspect the complete project.
+
+Do not immediately start changing files.
+
+Understand:
+
+## Repository structure
+
+Identify:
+
+backend
+
+frontend
+
+shared code
+
+configuration
+
+database
+
+migrations
+
+workers
+
+queues
+
+OpenSearch
+
+Redis
+
+tests
+
+scripts
+
+environment configuration
+
+deployment configuration
+
+Docker configuration
+
+CI/CD if present
+
+documentation
+
+## Backend audit
+
+Inspect:
+
+NestJS modules
+
+controllers
+
+services
+
+repositories
+
+Prisma/database access
+
+entities/models
+
+DTOs
+
+validation
+
+guards
+
+interceptors
+
+middleware
+
+exception handling
+
+logging
+
+configuration
+
+queues
+
+BullMQ workers
+
+GDELT integration
+
+news processing
+
+deduplication
+
+relevance filtering
+
+PostgreSQL queries
+
+OpenSearch indexing
+
+OpenSearch searching
+
+Redis usage
+
+API caching
+
+pagination
+
+rate limiting
+
+health checks
+
+scheduled jobs
+
+cleanup jobs
+
+retry logic
+
+database indexes
+
+transactions
+
+connection pools
+
+## Frontend audit
+
+Inspect:
+
+navigation
+
+screens
+
+components
+
+hooks
+
+API client
+
+state management
+
+storage
+
+caching
+
+FlatList/FlashList usage
+
+image handling
+
+search
+
+pagination
+
+loading states
+
+error states
+
+empty states
+
+animations
+
+memoization
+
+re-renders
+
+navigation lifecycle
+
+safe areas
+
+accessibility
+
+Android behavior
+
+iOS behavior
+
+network failure handling
+
+offline behavior
+
+## Important
+
+Do not assume something is wrong just because it looks different from your preferred architecture.
+
+Only change something when there is a measurable, logical, security, reliability, maintainability, or UX reason.
+
+---
+
+# 5. CREATE AN INTERNAL OPTIMIZATION CHECKLIST
+
+Before implementation, identify issues in these categories:
+
+Critical
+
+High
+
+Medium
+
+Low
+
+For each issue determine:
+
+Problem
+
+Root cause
+
+Impact
+
+Recommended solution
+
+Risk
+
+Expected improvement
+
+Do not make speculative optimizations.
+
+Prioritize changes that produce real benefits.
+
+---
+
+# 6. BACKEND ARCHITECTURE OPTIMIZATION
+
+The backend should remain a clean modular monolith.
+
+Do not split it into microservices.
+
+Use clear module boundaries.
+
+Possible logical modules include:
+
+News
+
+Sources
+
+Categories
+
+Search
+
+Ingestion
+
+Processing
+
+OpenSearch
+
+Users
+
+Bookmarks
+
+Authentication
+
+Health
+
+Configuration
+
+Queue
+
+Analytics if already present
+
+Do not create modules simply for the sake of creating modules.
+
+---
+
+# 7. API PERFORMANCE
+
+Audit every API endpoint.
+
+Look for:
+
+N+1 queries
+
+Unnecessary database queries
+
+Repeated queries
+
+Large payloads
+
+Unused fields
+
+Duplicate transformations
+
+Slow serialization
+
+Missing indexes
+
+Incorrect pagination
+
+Unnecessary joins
+
+Over-fetching
+
+Under-fetching
+
+Repeated OpenSearch queries
+
+Repeated Redis lookups
+
+Unnecessary API calls from the mobile app
+
+Optimize API responses.
+
+Return only the data required by the client.
+
+Avoid returning large database objects directly.
+
+Use dedicated response DTOs where appropriate.
+
+Ensure consistent response structures.
+
+---
+
+# 8. PAGINATION
+
+Use efficient pagination.
+
+Prefer cursor-based pagination for large news feeds where appropriate.
+
+Avoid OFFSET-based pagination for very large datasets when it creates performance problems.
+
+Ensure:
+
+Latest news
+
+Category feeds
+
+Search
+
+Related news
+
+Bookmarks
+
+all have efficient pagination where appropriate.
+
+The mobile application must not load hundreds or thousands of articles at once.
+
+---
+
+# 9. POSTGRESQL OPTIMIZATION
+
+Treat PostgreSQL as the source of truth.
+
+Inspect the database schema carefully.
+
+Check every frequently queried column.
+
+Review indexes for:
+
+publication date
+
+source
+
+category
+
+relevance
+
+article URL
+
+canonical URL
+
+hashes
+
+created_at
+
+updated_at
+
+foreign keys
+
+user relationships
+
+bookmark relationships
+
+search-related fields
+
+Do not blindly add indexes.
+
+Indexes have storage and write costs.
+
+Only add indexes that support real query patterns.
+
+Check for:
+
+duplicate indexes
+
+unused indexes
+
+missing composite indexes
+
+incorrect index ordering
+
+unnecessary constraints
+
+inefficient queries
+
+large scans
+
+N+1 queries
+
+unnecessary SELECT *
+
+Prefer selecting only required fields.
+
+Use transactions only where they are actually necessary.
+
+Avoid unnecessarily long transactions.
+
+---
+
+# 10. ARTICLE DEDUPLICATION
+
+Audit the existing deduplication system deeply.
+
+The ingestion pipeline should prevent duplicate news articles.
+
+Use deterministic mechanisms.
+
+Potential deduplication signals include:
+
+canonical URL
+
+normalized URL
+
+content hash
+
+title hash
+
+source
+
+normalized title
+
+publication time
+
+Do not rely on one deduplication method.
+
+Database constraints should provide the final safety layer.
+
+Deduplication must remain idempotent.
+
+If the same GDELT article is received multiple times, processing it repeatedly must not create duplicate records.
+
+---
+
+# 11. GDELT INGESTION OPTIMIZATION
+
+Audit the GDELT ingestion process.
+
+The application should be able to run repeatedly without corrupting data or generating unnecessary duplicates.
+
+Ensure:
+
+timeouts
+
+retry logic
+
+backoff
+
+failure handling
+
+request validation
+
+response validation
+
+duplicate protection
+
+rate limiting where appropriate
+
+structured logging
+
+metrics
+
+job idempotency
+
+The ingestion window should account for possible delays.
+
+Overlapping polling windows are acceptable because the deduplication system should handle duplicates.
+
+Do not increase polling frequency unnecessarily.
+
+Avoid downloading or storing data that is not needed.
+
+---
+
+# 12. NEWS RELEVANCE ENGINE
+
+The application must continue using deterministic relevance filtering.
+
+Do not introduce AI.
+
+Audit the relevance algorithm.
+
+Check:
+
+keyword matching
+
+phrase matching
+
+negative keyword filtering
+
+title matching
+
+description matching
+
+source relevance
+
+geographic relevance
+
+proximity
+
+frequency
+
+thresholds
+
+manual overrides
+
+Ensure false positives are minimized without making the system so restrictive that relevant news disappears.
+
+Make the rules easy to maintain.
+
+If rules are scattered throughout the codebase, centralize them into a clean configuration/rules structure.
+
+---
+
+# 13. ARTICLE PROCESSING PIPELINE
+
+Optimize the complete pipeline:
+
+GDELT
+
+→ normalize
+
+→ validate
+
+→ relevance
+
+→ deduplicate
+
+→ categorize
+
+→ persist PostgreSQL
+
+→ queue OpenSearch indexing
+
+Make each stage:
+
+idempotent
+
+observable
+
+retryable
+
+failure tolerant
+
+Do not make one failure destroy the entire pipeline.
+
+For example:
+
+If OpenSearch is temporarily unavailable, PostgreSQL data should remain safe.
+
+The article should not disappear merely because search indexing failed.
+
+---
+
+# 14. BULLMQ OPTIMIZATION
+
+Audit all queues.
+
+Potential queues:
+
+GDELT ingestion
+
+Article processing
+
+OpenSearch indexing
+
+Cleanup
+
+Maintenance
+
+Ensure:
+
+reasonable concurrency
+
+retry policies
+
+exponential backoff where appropriate
+
+job timeouts
+
+stalled job handling
+
+dead-letter handling if useful
+
+idempotent workers
+
+controlled concurrency
+
+memory-safe processing
+
+Do not run unlimited concurrent jobs.
+
+The server is intentionally small.
+
+Avoid exhausting:
+
+CPU
+
+RAM
+
+database connections
+
+Redis memory
+
+OpenSearch resources
+
+Network bandwidth
+
+---
+
+# 15. REDIS OPTIMIZATION
+
+Redis should be used for temporary/high-speed workloads.
+
+Use Redis for:
+
+BullMQ
+
+API caching
+
+rate limiting
+
+temporary state
+
+Do NOT treat Redis as permanent article storage.
+
+Audit:
+
+TTL
+
+key naming
+
+cache invalidation
+
+memory usage
+
+duplicate caches
+
+unbounded keys
+
+large values
+
+stale data
+
+Use sensible expiration policies.
+
+Do not cache everything.
+
+Cache only data where caching produces a measurable benefit.
+
+---
+
+# 16. OPENSEARCH OPTIMIZATION
+
+OpenSearch is an important component of this application.
+
+However, the server has limited resources.
+
+Optimize OpenSearch aggressively.
+
+Use:
+
+single node
+
+minimal shard count
+
+no unnecessary replicas
+
+small mappings
+
+only required fields
+
+appropriate analyzers
+
+efficient queries
+
+limited result sizes
+
+controlled refresh behavior where appropriate
+
+Avoid storing redundant fields.
+
+Do not index fields that are never searched, filtered, sorted, or displayed.
+
+Do not duplicate huge PostgreSQL records inside OpenSearch.
+
+PostgreSQL remains the source of truth.
+
+OpenSearch is a derived search index.
+
+The system must be able to rebuild OpenSearch from PostgreSQL.
+
+---
+
+# 17. OPENSEARCH FAILURE HANDLING
+
+OpenSearch failure must not destroy application availability.
+
+If OpenSearch becomes temporarily unavailable:
+
+The application should continue functioning wherever possible.
+
+Search may temporarily fail gracefully.
+
+Normal news feeds should continue using PostgreSQL if the architecture supports it.
+
+Indexing jobs should retry.
+
+Failed indexing should be observable.
+
+The system should provide a way to rebuild the OpenSearch index from PostgreSQL.
+
+Do not make OpenSearch a single point of permanent data loss.
+
+---
+
+# 18. SEARCH OPTIMIZATION
+
+Audit search behavior.
+
+Search should:
+
+debounce user input on mobile
+
+avoid unnecessary requests
+
+support pagination
+
+return useful results quickly
+
+avoid enormous result sets
+
+use OpenSearch efficiently
+
+avoid wildcard queries that cause expensive scans unless properly designed
+
+avoid expensive fuzzy searches by default
+
+Use appropriate analyzers and fields.
+
+If autocomplete exists, optimize it separately from full-text search.
+
+---
+
+# 19. CACHING STRATEGY
+
+Determine which API responses should be cached.
+
+Potential candidates:
+
+latest news
+
+homepage feed
+
+categories
+
+sources
+
+popular searches if applicable
+
+Do not cache personalized responses incorrectly.
+
+User-specific data such as bookmarks must not accidentally be shared between users.
+
+Use clear cache keys.
+
+Define TTLs.
+
+Invalidate caches when necessary.
+
+Avoid complex cache invalidation unless it is actually needed.
+
+---
+
+# 20. DATABASE + OPENSEARCH CONSISTENCY
+
+Ensure PostgreSQL and OpenSearch synchronization is reliable.
+
+Preferred conceptual flow:
+
+PostgreSQL transaction succeeds
+
+→ indexing job created
+
+→ OpenSearch indexed
+
+If indexing fails:
+
+retry
+
+Do not lose the article.
+
+If necessary, use an outbox-style approach.
+
+The key requirement is:
+
+PostgreSQL remains authoritative.
+
+OpenSearch can always be rebuilt.
+
+---
+
+# 21. BACKEND MEMORY OPTIMIZATION
+
+The production server is resource constrained.
+
+Audit:
+
+large arrays
+
+large JSON objects
+
+unbounded loops
+
+large API responses
+
+unbounded queue jobs
+
+large OpenSearch results
+
+unnecessary object copies
+
+unnecessary serialization
+
+large logging payloads
+
+memory leaks
+
+long-lived references
+
+Avoid loading thousands of articles into memory.
+
+Process large datasets in batches.
+
+Use streaming/batching where appropriate.
+
+---
+
+# 22. LOGGING
+
+Implement useful structured logging.
+
+Logs should help diagnose:
+
+GDELT failures
+
+ingestion counts
+
+duplicate counts
+
+relevance rejection counts
+
+database failures
+
+queue failures
+
+OpenSearch failures
+
+API errors
+
+slow requests
+
+authentication failures
+
+Do not log:
+
+passwords
+
+tokens
+
+API secrets
+
+private user information
+
+unnecessary article content
+
+Avoid excessive production logs.
+
+---
+
+# 23. ERROR HANDLING
+
+Every external dependency can fail.
+
+Handle failures for:
+
+GDELT
+
+PostgreSQL
+
+Redis
+
+BullMQ
+
+OpenSearch
+
+external article URLs
+
+images
+
+network requests
+
+Ensure errors are:
+
+caught
+
+logged appropriately
+
+classified
+
+retryable when appropriate
+
+returned to the client safely
+
+Never expose internal stack traces or infrastructure details to mobile clients.
+
+---
+
+# 24. SECURITY AUDIT
+
+Perform a complete backend security audit.
+
+Check:
+
+authentication
+
+authorization
+
+JWT/session handling if applicable
+
+password handling
+
+request validation
+
+DTO validation
+
+rate limiting
+
+CORS
+
+HTTP headers
+
+SQL injection
+
+NoSQL/OpenSearch injection
+
+SSRF
+
+URL validation
+
+external URL handling
+
+file handling if applicable
+
+secret management
+
+environment variables
+
+debug mode
+
+production error responses
+
+database exposure
+
+Redis exposure
+
+OpenSearch exposure
+
+admin endpoints
+
+queue endpoints
+
+health endpoints
+
+The database, Redis and OpenSearch must never be publicly accessible unless absolutely required.
+
+---
+
+# 25. SSRF PROTECTION
+
+The application deals with external article URLs.
+
+Audit all places where the backend may fetch external URLs.
+
+Do not allow arbitrary internal network access.
+
+Protect against requests to:
+
+localhost
+
+127.0.0.1
+
+private IP ranges
+
+cloud metadata endpoints
+
+internal hostnames
+
+Docker networks
+
+server-local services
+
+Validate protocols and redirects.
+
+Do not blindly fetch user-provided URLs.
+
+---
+
+# 26. HEALTH CHECKS
+
+Create or improve health checks.
+
+Health should distinguish:
+
+API
+
+PostgreSQL
+
+Redis
+
+OpenSearch
+
+Queue system
+
+GDELT connectivity where appropriate
+
+Do not make a health endpoint perform expensive operations.
+
+Provide a lightweight liveness check and deeper readiness/dependency checks where appropriate.
+
+---
+
+# 27. FRONTEND OPTIMIZATION
+
+Now audit the React Native application.
+
+The frontend must feel:
+
+FAST
+
+PREMIUM
+
+MINIMAL
+
+RESPONSIVE
+
+STABLE
+
+CONTENT-FIRST
+
+The application should feel immediate even on slower devices and networks.
+
+---
+
+# 28. FRONTEND DESIGN SYSTEM
+
+Maintain the existing desired visual direction:
+
+White dominant
+
+Approximately 90% white
+
+Approximately 10% black
+
+Only black and white
+
+No gradients
+
+No unnecessary colors
+
+Premium editorial aesthetic
+
+Minimal
+
+Sophisticated
+
+Modern
+
+High-end
+
+Content-first
+
+Sharp or subtle corners
+
+No excessive cards
+
+No excessive shadows
+
+No excessive pills
+
+No excessive badges
+
+No decorative clutter
+
+Use typography and whitespace for hierarchy.
+
+Do not introduce random colors.
+
+Do not introduce emojis.
+
+Use Lucide icons where icons are required and compatible with the existing project.
+
+Do not introduce random icon libraries.
+
+---
+
+# 29. DO NOT OVERDESIGN
+
+The app is a news application.
+
+Content must remain the visual priority.
+
+Avoid:
+
+giant decorative sections
+
+excessive animations
+
+huge cards
+
+heavy shadows
+
+unnecessary gradients
+
+unnecessary borders
+
+too many icons
+
+too many buttons
+
+visual noise
+
+The interface should feel closer to a premium editorial product than a generic dashboard.
+
+---
+
+# 30. REACT RENDERING PERFORMANCE
+
+Audit every major screen for unnecessary re-renders.
+
+Check:
+
+React.memo
+
+useMemo
+
+useCallback
+
+stable references
+
+context updates
+
+state placement
+
+component boundaries
+
+derived state
+
+effects
+
+subscriptions
+
+navigation listeners
+
+Do NOT add memoization everywhere.
+
+Only optimize where it prevents real work.
+
+Avoid premature optimization that makes the code harder to understand.
+
+---
+
+# 31. LIST PERFORMANCE
+
+News feeds are one of the most important performance areas.
+
+Optimize:
+
+FlatList or FlashList
+
+keyExtractor
+
+renderItem
+
+item components
+
+estimated item size
+
+windowing
+
+initial render count
+
+batch rendering
+
+pagination
+
+image loading
+
+separator rendering
+
+header/footer rendering
+
+Avoid rendering unnecessary off-screen content.
+
+Do not load the entire news database into memory.
+
+Load incrementally.
+
+Use stable keys.
+
+Avoid using array indexes as keys.
+
+---
+
+# 32. IMAGE PERFORMANCE
+
+News images can become one of the biggest causes of:
+
+slow loading
+
+memory pressure
+
+scroll stutter
+
+network usage
+
+Audit image handling.
+
+Use appropriate image sizes.
+
+Avoid loading huge original images when a smaller image is sufficient.
+
+Use caching where appropriate.
+
+Handle:
+
+missing images
+
+broken images
+
+slow images
+
+image loading states
+
+different aspect ratios
+
+Do not allow one broken image to break an entire feed.
+
+---
+
+# 33. NETWORK OPTIMIZATION
+
+Audit every API request.
+
+Identify:
+
+duplicate requests
+
+requests triggered unnecessarily
+
+requests triggered multiple times by navigation
+
+requests triggered on every render
+
+requests that should be cached
+
+requests that should be debounced
+
+requests that should be cancelled
+
+Search must be debounced.
+
+Pagination must avoid duplicate page requests.
+
+Prevent race conditions where an older search response overwrites a newer search response.
+
+---
+
+# 34. API CLIENT
+
+Create a clean, consistent API layer.
+
+Avoid making raw network calls throughout individual components.
+
+Centralize:
+
+base URL
+
+authentication
+
+headers
+
+timeouts
+
+error handling
+
+response parsing
+
+retry behavior where appropriate
+
+network state
+
+request cancellation
+
+The UI should not need to know how HTTP requests work.
+
+---
+
+# 35. OFFLINE AND NETWORK FAILURE EXPERIENCE
+
+The application should gracefully handle:
+
+slow network
+
+no network
+
+server unavailable
+
+timeout
+
+partial API failure
+
+empty response
+
+OpenSearch temporarily unavailable
+
+Show polished monochrome states.
+
+Do not show ugly technical error messages to users.
+
+Where appropriate, display cached content while refreshing in the background.
+
+---
+
+# 36. HOME SCREEN
+
+Optimize the home screen specifically.
+
+It should:
+
+load quickly
+
+show useful content immediately
+
+avoid blocking the entire screen while fetching everything
+
+use skeleton/loading states where appropriate
+
+support pull-to-refresh
+
+paginate efficiently
+
+avoid duplicate content
+
+avoid unnecessary API requests
+
+Keep the visual hierarchy clean.
+
+---
+
+# 37. NEWS ARTICLE DETAIL
+
+Optimize article detail.
+
+The article screen should clearly display:
+
+headline
+
+source
+
+category
+
+published time
+
+description
+
+hero image
+
+metadata
+
+original article action
+
+related news
+
+The "READ ORIGINAL" action should remain visually strong but minimal.
+
+Use a black button with white text and a suitable Lucide external-link icon.
+
+Do not make it look like an advertisement.
+
+---
+
+# 38. SEARCH
+
+Search should feel instantaneous.
+
+Requirements:
+
+debounce input
+
+avoid request-per-keystroke
+
+cancel stale requests
+
+show loading state
+
+show empty state
+
+show useful results
+
+paginate
+
+avoid duplicate results
+
+preserve search query appropriately
+
+Do not perform expensive searches for empty input.
+
+---
+
+# 39. NAVIGATION
+
+Audit navigation performance.
+
+Check:
+
+unnecessary screen mounting
+
+unnecessary unmounting
+
+navigation listeners
+
+duplicate API calls on focus
+
+state persistence
+
+deep linking if present
+
+back behavior
+
+tab navigation
+
+onboarding flow
+
+Ensure screens do not refetch unnecessarily every time the user switches tabs.
+
+Use appropriate refresh behavior.
+
+---
+
+# 40. ONBOARDING
+
+The application has a three-screen onboarding experience.
+
+Preserve the onboarding concept.
+
+The visual style should remain:
+
+black and white
+
+premium
+
+minimal
+
+editorial
+
+image-led
+
+high-end
+
+The onboarding should not introduce unnecessary network requests.
+
+If the onboarding has already been completed, do not show it again unless the user explicitly resets onboarding.
+
+Store onboarding state appropriately.
+
+---
+
+# 41. LOCAL STORAGE
+
+Audit local storage usage.
+
+Do not store huge amounts of news content unnecessarily.
+
+Store only what is useful.
+
+Examples:
+
+onboarding completion
+
+user preferences
+
+authentication state
+
+bookmarks if appropriate
+
+cached lightweight data
+
+Ensure storage is handled safely.
+
+Do not store sensitive credentials insecurely.
+
+---
+
+# 42. STATE MANAGEMENT
+
+Audit existing state management.
+
+Avoid global state for data that only one screen needs.
+
+Avoid prop drilling where it creates real complexity.
+
+Avoid duplicating the same news data in multiple stores.
+
+Establish clear ownership:
+
+server state
+
+UI state
+
+navigation state
+
+persistent state
+
+temporary state
+
+Do not introduce a new state management library unless there is a strong reason.
+
+---
+
+# 43. ACCESSIBILITY
+
+Audit all major screens.
+
+Ensure:
+
+touch targets are sufficiently large
+
+text has appropriate contrast
+
+screen readers can understand buttons
+
+icons have accessible labels
+
+interactive elements are discoverable
+
+dynamic content is announced appropriately where necessary
+
+font scaling does not destroy layouts
+
+Do not sacrifice accessibility for visual aesthetics.
+
+---
+
+# 44. ANIMATION
+
+Use animation sparingly.
+
+Animations should communicate:
+
+loading
+
+navigation
+
+interaction
+
+content transitions
+
+Do not animate everything.
+
+Avoid animations that cause:
+
+dropped frames
+
+battery drain
+
+unnecessary CPU usage
+
+scroll performance problems
+
+The application should feel fast, not busy.
+
+---
+
+# 45. TYPOGRAPHY
+
+Optimize typography for news consumption.
+
+Headlines should have strong hierarchy.
+
+Body text should prioritize readability.
+
+Metadata should be visually quieter.
+
+Do not use excessive font sizes.
+
+Do not use excessive font weights.
+
+Maintain consistent typography tokens throughout the application.
+
+---
+
+# 46. DESIGN TOKENS
+
+Create or improve centralized design tokens for:
+
+background
+
+foreground
+
+inverse background
+
+inverse foreground
+
+muted black opacity
+
+border black opacity
+
+spacing
+
+radius
+
+typography
+
+icon sizes
+
+touch targets
+
+layout margins
+
+Do not scatter arbitrary values throughout components.
+
+The system must remain strictly monochrome.
+
+---
+
+# 47. LOADING STATES
+
+Every major data-driven screen needs a polished loading state.
+
+Use:
+
+skeletons
+
+subtle opacity
+
+layout placeholders
+
+or lightweight loading indicators
+
+Keep everything monochrome.
+
+Avoid excessive spinners.
+
+Do not cause layout jumps when content loads.
+
+---
+
+# 48. EMPTY STATES
+
+Create useful empty states for:
+
+no news
+
+no search results
+
+no bookmarks
+
+no categories
+
+no related articles
+
+Keep them minimal.
+
+Do not fill empty screens with unnecessary illustrations or decoration.
+
+---
+
+# 49. ERROR STATES
+
+Error states must be:
+
+clear
+
+calm
+
+actionable
+
+minimal
+
+monochrome
+
+Examples:
+
+Retry
+
+Refresh
+
+Try again
+
+No technical stack traces.
+
+---
+
+# 50. PERFORMANCE METRICS
+
+After optimization, inspect:
+
+backend API latency
+
+database query performance
+
+OpenSearch query latency
+
+Redis usage
+
+queue latency
+
+ingestion duration
+
+article processing duration
+
+duplicate rate
+
+failed jobs
+
+mobile startup time
+
+screen rendering
+
+list scrolling
+
+network request count
+
+image loading
+
+memory usage
+
+unnecessary renders
+
+Do not fabricate performance numbers.
+
+If benchmarking is possible, measure before and after.
+
+---
+
+# 51. TESTING
+
+Audit existing tests.
+
+Add or improve tests for critical functionality.
+
+Backend tests should cover:
+
+GDELT ingestion
+
+deduplication
+
+relevance filtering
+
+categorization
+
+database persistence
+
+OpenSearch indexing
+
+search
+
+pagination
+
+authentication
+
+authorization
+
+error handling
+
+queue processing
+
+Frontend tests should cover important:
+
+navigation
+
+search
+
+news feed
+
+article detail
+
+bookmark
+
+onboarding
+
+loading
+
+empty
+
+error
+
+states where existing testing infrastructure supports them.
+
+Do not create meaningless tests simply to increase coverage numbers.
+
+---
+
+# 52. DATABASE MIGRATIONS
+
+If schema changes are required:
+
+Create proper migrations.
+
+Do not manually alter production databases without migrations.
+
+Do not destroy existing production data.
+
+Ensure migrations are backward-aware where practical.
+
+Never casually drop columns or tables.
+
+---
+
+# 53. ENVIRONMENT CONFIGURATION
+
+Audit environment variables.
+
+Ensure:
+
+development
+
+test
+
+production
+
+configuration
+
+are separated properly.
+
+Never commit secrets.
+
+Do not hardcode:
+
+API keys
+
+database credentials
+
+JWT secrets
+
+Redis credentials
+
+OpenSearch credentials
+
+external URLs that should be configurable
+
+---
+
+# 54. DEPLOYMENT OPTIMIZATION
+
+The application currently targets a small OVHcloud VPS.
+
+Resources are approximately:
+
+2 vCPU
+
+4 GB RAM
+
+40 GB NVMe
+
+Design accordingly.
+
+Do not assume unlimited CPU or RAM.
+
+Be especially careful with:
+
+OpenSearch
+
+PostgreSQL
+
+Redis
+
+Node.js
+
+BullMQ
+
+concurrent workers
+
+logs
+
+Docker containers
+
+image processing
+
+large caches
+
+Do not run unnecessary services.
+
+---
+
+# 55. RESOURCE BUDGETING
+
+Treat the VPS like a small apartment.
+
+Every process needs to justify its rent.
+
+Keep memory usage predictable.
+
+Avoid:
+
+unbounded workers
+
+large caches
+
+huge OpenSearch heap
+
+excessive Node processes
+
+duplicate services
+
+unnecessary containers
+
+large log files
+
+unbounded database growth
+
+---
+
+# 56. STORAGE OPTIMIZATION
+
+40 GB NVMe is limited.
+
+Audit storage usage.
+
+Pay attention to:
+
+PostgreSQL
+
+OpenSearch
+
+Docker images
+
+Docker volumes
+
+logs
+
+temporary files
+
+cache files
+
+backups
+
+uploaded files
+
+old queue data
+
+Do not store raw GDELT responses forever unless there is a concrete requirement.
+
+Do not duplicate entire article bodies unnecessarily.
+
+Use retention policies.
+
+Keep only information necessary for the application.
+
+---
+
+# 57. BACKUPS
+
+PostgreSQL is authoritative.
+
+Ensure a practical backup strategy exists.
+
+OpenSearch is derived data and should be rebuildable.
+
+Do not treat an OpenSearch snapshot as the primary database backup.
+
+Backups should ideally be stored outside the VPS.
+
+Do not allow backups to consume the entire 40 GB disk.
+
+---
+
+# 58. DATA RETENTION
+
+Determine whether old articles need indefinite retention.
+
+If there is no product requirement to keep everything forever, introduce a sensible retention strategy.
+
+Before implementing deletion:
+
+Understand dependencies.
+
+Understand bookmarks.
+
+Understand search index consistency.
+
+Understand analytics if present.
+
+Never automatically delete user-important data without an explicit policy.
+
+---
+
+# 59. CODE QUALITY
+
+Clean up:
+
+dead code
+
+unused imports
+
+unused dependencies
+
+duplicate functions
+
+duplicate API logic
+
+duplicate styles
+
+duplicate validation
+
+unused environment variables
+
+temporary debugging code
+
+console logs
+
+commented-out legacy implementations
+
+inconsistent naming
+
+unnecessary abstractions
+
+Do not perform cosmetic refactoring that provides no benefit.
+
+---
+
+# 60. TYPESCRIPT QUALITY
+
+Use strict and meaningful typing.
+
+Avoid:
+
+any
+
+unnecessary type assertions
+
+unsafe casts
+
+duplicated interfaces
+
+inconsistent DTOs
+
+weak API response types
+
+The frontend and backend should have reliable contracts.
+
+Do not overengineer the type system.
+
+---
+
+# 61. DEPENDENCY AUDIT
+
+Inspect dependencies.
+
+Identify:
+
+unused packages
+
+duplicate packages
+
+outdated packages
+
+unnecessary packages
+
+heavy packages that can be avoided
+
+security vulnerabilities
+
+Do not blindly upgrade everything.
+
+Before upgrading a dependency, check compatibility with the existing application.
+
+Avoid introducing a large dependency just to solve a tiny problem.
+
+---
+
+# 62. API CONTRACT STABILITY
+
+Do not casually rename or remove APIs.
+
+If existing frontend screens depend on an endpoint:
+
+preserve compatibility where possible.
+
+If an API needs to change:
+
+update all consumers.
+
+Do not leave broken endpoints behind.
+
+---
+
+# 63. OBSERVABILITY
+
+Introduce lightweight observability where useful.
+
+Track:
+
+articles fetched
+
+articles accepted
+
+articles rejected
+
+duplicates
+
+processing failures
+
+queue failures
+
+OpenSearch indexing failures
+
+API errors
+
+slow API requests
+
+database errors
+
+Search failures
+
+Do not build a huge observability platform.
+
+Simple structured logs and health metrics are enough for the current stage.
+
+---
+
+# 64. FAILURE RECOVERY
+
+The application should recover automatically from temporary failures.
+
+Examples:
+
+GDELT unavailable
+
+Redis restart
+
+OpenSearch restart
+
+PostgreSQL connection interruption
+
+network failure
+
+worker crash
+
+API restart
+
+Ensure jobs can resume safely.
+
+Do not create duplicate articles during recovery.
+
+---
+
+# 65. MOBILE BACKGROUND BEHAVIOR
+
+Do not continuously poll from the mobile application.
+
+News ingestion belongs on the backend.
+
+The mobile app should request fresh data when appropriate.
+
+Use:
+
+pull to refresh
+
+screen focus refresh where appropriate
+
+cache expiration
+
+background refresh only if the existing application genuinely needs it
+
+Do not waste mobile battery.
+
+---
+
+# 66. SECURITY + PERFORMANCE TOGETHER
+
+Do not optimize performance by weakening security.
+
+Examples:
+
+Do not disable validation.
+
+Do not remove rate limiting.
+
+Do not expose internal services.
+
+Do not trust client input.
+
+Do not disable authentication checks.
+
+Do not allow arbitrary external requests.
+
+Performance improvements must remain secure.
+
+---
+
+# 67. OPEN SOURCE QUALITY
+
+This is an open source project.
+
+Optimize for contributors as well as users.
+
+Keep:
+
+README
+
+environment documentation
+
+setup instructions
+
+architecture documentation
+
+database setup
+
+development commands
+
+production deployment documentation
+
+contribution instructions
+
+clear.
+
+Avoid undocumented magic.
+
+---
+
+# 68. DOCUMENT IMPORTANT ARCHITECTURAL DECISIONS
+
+Update documentation where necessary.
+
+Document:
+
+why PostgreSQL is authoritative
+
+why OpenSearch is used
+
+why Redis exists
+
+why BullMQ exists
+
+how GDELT ingestion works
+
+how deduplication works
+
+how relevance filtering works
+
+how OpenSearch is rebuilt
+
+how to run the application locally
+
+how to deploy it
+
+how to troubleshoot failures
+
+Do not create huge documentation files for trivial things.
+
+---
+
+# 69. DO NOT CHANGE THESE FUNDAMENTALS
+
+Do not replace:
+
+NestJS
+
+Fastify
+
+PostgreSQL
+
+Redis
+
+BullMQ
+
+OpenSearch
+
+GDELT
+
+React Native
+
+unless the existing implementation has a critical technical problem that genuinely requires replacement.
+
+Do not introduce:
+
+AI
+
+translation
+
+microservices
+
+Kubernetes
+
+GraphQL
+
+vector search
+
+new news providers
+
+unnecessary SaaS dependencies
+
+unless explicitly requested later.
+
+---
+
+# 70. OPTIMIZATION PRIORITY
+
+Prioritize in this order:
+
+1. Correctness
+2. Security
+3. Reliability
+4. Data integrity
+5. Performance
+6. Resource efficiency
+7. User experience
+8. Maintainability
+9. Developer experience
+10. Cosmetic improvements
+
+Never sacrifice correctness for speed.
+
+---
+
+# 71. IMPLEMENTATION STRATEGY
+
+Work in phases.
+
+## Phase 1: Audit
+
+Inspect the entire project.
+
+Do not modify anything yet.
+
+Identify issues.
+
+## Phase 2: Architecture
+
+Determine which issues require architectural changes.
+
+Avoid unnecessary architectural changes.
+
+## Phase 3: Backend optimization
+
+Fix:
+
+database
+
+API
+
+queues
+
+GDELT
+
+deduplication
+
+relevance
+
+Redis
+
+OpenSearch
+
+security
+
+resource usage
+
+## Phase 4: Frontend optimization
+
+Fix:
+
+rendering
+
+navigation
+
+networking
+
+lists
+
+images
+
+caching
+
+state
+
+loading
+
+search
+
+UX
+
+accessibility
+
+## Phase 5: Testing
+
+Run tests.
+
+Fix regressions.
+
+## Phase 6: Performance verification
+
+Measure where possible.
+
+Compare before and after.
+
+## Phase 7: Cleanup
+
+Remove dead code and unnecessary dependencies.
+
+## Phase 8: Documentation
+
+Update documentation where architectural behavior changed.
+
+---
+
+# 72. IMPORTANT: DO NOT REWRITE EVERYTHING
+
+This is extremely important.
+
+Do NOT assume that a complete rewrite is the correct solution.
+
+Prefer:
+
+small targeted changes
+
+incremental improvements
+
+safe refactoring
+
+backward-compatible improvements
+
+measurable optimization
+
+Preserve working functionality.
+
+Only rewrite a component when its current implementation is genuinely problematic.
+
+---
+
+# 73. BEFORE/AFTER VALIDATION
+
+For every significant optimization, verify:
+
+Does it improve performance?
+
+Does it reduce memory?
+
+Does it reduce network requests?
+
+Does it improve reliability?
+
+Does it reduce complexity?
+
+Does it improve maintainability?
+
+Does it preserve behavior?
+
+If none of these are true, reconsider the change.
+
+---
+
+# 74. FINAL AUDIT
+
+After implementation, perform another complete audit.
+
+Verify:
+
+Backend starts correctly.
+
+Frontend starts correctly.
+
+Database migrations work.
+
+GDELT ingestion works.
+
+Articles are processed.
+
+Duplicates are prevented.
+
+Relevance filtering works.
+
+Categories work.
+
+PostgreSQL persists data correctly.
+
+OpenSearch indexes correctly.
+
+Search works.
+
+Redis works.
+
+BullMQ works.
+
+Retries work.
+
+Failures are handled.
+
+API pagination works.
+
+Mobile feeds work.
+
+Search works.
+
+Article detail works.
+
+Bookmarks work.
+
+Onboarding works.
+
+Navigation works.
+
+Images work.
+
+Offline/error states work.
+
+No obvious performance regressions exist.
+
+No secrets were introduced.
+
+No unnecessary dependencies were introduced.
+
+---
+
+# 75. FINAL RESPONSE FORMAT
+
+When you finish the work, provide a concise engineering report.
+
+Use this structure:
+
+## Optimization Summary
+
+Short summary of what was improved.
+
+## Backend Improvements
+
+List the important backend changes.
+
+## Database Improvements
+
+List PostgreSQL/schema/index/query improvements.
+
+## GDELT Improvements
+
+List ingestion/relevance/deduplication improvements.
+
+## Redis and BullMQ Improvements
+
+List queue/cache improvements.
+
+## OpenSearch Improvements
+
+List search/index/resource improvements.
+
+## React Native Improvements
+
+List frontend performance and UX improvements.
+
+## Security Improvements
+
+List security fixes.
+
+## Resource Optimization
+
+Explain improvements related to the 2 vCPU / 4 GB RAM / 40 GB NVMe environment.
+
+## Tests
+
+List tests/checks executed.
+
+## Performance
+
+Only report measurements that were actually measured.
+
+Never fabricate benchmark numbers.
+
+## Remaining Issues
+
+Clearly identify anything that should be addressed later.
+
+## Files Changed
+
+List important files changed and why.
+
+---
+
+# FINAL PRINCIPLE
+
+Think like a senior staff engineer responsible for running this application in production on a small server.
+
+Do not optimize for theoretical perfection.
+
+Optimize for:
+
+REAL PERFORMANCE
+
+REAL RELIABILITY
+
+REAL SECURITY
+
+REAL RESOURCE EFFICIENCY
+
+REAL USER EXPERIENCE
+
+REAL MAINTAINABILITY
+
+Keep the architecture boring where boring is better.
+
+Keep the UI beautiful where beauty improves usability.
+
+Keep the system simple where simplicity wins.
+
+Do not add technology merely because it exists.
+
+Do not rewrite working code merely because you would personally structure it differently.
+
+Inspect first.
+
+Measure where possible.
+
+Change deliberately.
+
+Test everything.
+
+Preserve the product.
+
+The final result should be a **lean, fast, reliable, production-ready open source news application** that can comfortably operate on the current small OVHcloud VPS while remaining easy to scale later.
+
+# IMPLEMENT ANDROID IN APP UPDATES FOR OUR NEWS APP
+
+You are working on our existing React Native news aggregation application.
+
+I want you to implement a **production ready Android in app update system** using **Google Play In App Updates**.
+
+Do not build a custom update downloader.
+
+Do not host APK files ourselves.
+
+Do not use third party update services.
+
+Do not change the backend architecture.
+
+The update mechanism must use the official Google Play update infrastructure.
+
+---
+
+## 1. FIRST INSPECT THE EXISTING PROJECT
+
+Before making any changes, inspect the existing React Native application.
+
+Understand:
+
+* React Native version
+* Android project structure
+* Gradle configuration
+* package/application ID
+* build configuration
+* release configuration
+* existing native modules
+* navigation
+* app startup flow
+* splash screen
+* authentication state
+* onboarding
+* API initialization
+* existing update/version checking logic
+* Android permissions
+* existing dependencies
+
+Do not modify unrelated parts of the application.
+
+Preserve the existing architecture.
+
+---
+
+# 2. UPDATE FLOW
+
+Implement this flow:
+
+```text
+App launches
+    ↓
+Application initialization
+    ↓
+Check Google Play In App Update availability
+    ↓
+Is an update available?
+    ↓
+No ───────────────→ Continue normally
+    │
+    Yes
+    ↓
+Determine update type
+    ↓
+Flexible update
+    OR
+    ↓
+Immediate update when appropriate
+```
+
+The update check must never prevent the application from opening when the update service is unavailable.
+
+---
+
+# 3. FLEXIBLE UPDATE
+
+Use **Flexible In App Updates** for normal recommended updates.
+
+Expected behavior:
+
+```text
+App opens
+    ↓
+Check Google Play
+    ↓
+Update available
+    ↓
+Show update prompt
+    ↓
+User chooses "Update"
+    ↓
+Download update in background
+    ↓
+User continues using the application
+    ↓
+Download completes
+    ↓
+Show "Restart to update"
+    ↓
+User confirms
+    ↓
+Complete the update
+```
+
+The user should be able to continue reading news while the update downloads.
+
+Do not freeze the application during a flexible update.
+
+Do not force the user to immediately restart.
+
+---
+
+# 4. IMMEDIATE UPDATE
+
+Support **Immediate In App Updates** for releases where the update is considered mandatory or critical.
+
+Do not make every update an immediate update.
+
+The implementation should provide a clean mechanism for determining whether an update should use:
+
+```text
+FLEXIBLE
+```
+
+or
+
+```text
+IMMEDIATE
+```
+
+Do not invent an external update policy that requires a backend unless the existing application already has one.
+
+Use Google Play's supported update information and Android implementation appropriately.
+
+Keep the implementation easy to modify later.
+
+---
+
+# 5. UPDATE UI
+
+The UI must match our existing application design system.
+
+Our application uses:
+
+* White dominant interface
+* Approximately 90% white
+* Approximately 10% black
+* Black text
+* White background
+* Black buttons
+* No gradients
+* No unnecessary colors
+* Premium
+* Minimal
+* Editorial
+* Sophisticated
+* Clean
+* Modern
+* Content first
+
+Do not introduce colorful update dialogs.
+
+Do not use:
+
+* random colors
+* emojis
+* excessive illustrations
+* unnecessary animations
+* excessive shadows
+* excessive rounded cards
+* unnecessary badges
+
+The update experience should feel like a native part of the application.
+
+---
+
+# 6. FLEXIBLE UPDATE UI
+
+When an update is available, present a concise update prompt.
+
+Conceptually:
+
+```text
+New version available
+
+A newer version of the app is ready.
+Update to get the latest improvements.
+
+[ UPDATE NOW ]
+
+Later
+```
+
+Use the application's existing modal/dialog/bottom sheet system if one already exists.
+
+Do not create an entirely new UI architecture just for this feature.
+
+---
+
+# 7. DOWNLOAD STATE
+
+During a flexible update, provide appropriate progress feedback.
+
+Conceptually:
+
+```text
+Updating app
+
+Downloading the latest version...
+
+[ progress ]
+
+You can continue using the app.
+```
+
+The UI should remain minimal.
+
+Do not make the download experience feel like a separate application.
+
+---
+
+# 8. UPDATE COMPLETED STATE
+
+When the flexible update has finished downloading:
+
+```text
+Update ready
+
+The latest version has been downloaded.
+
+[ RESTART NOW ]
+```
+
+The restart action should complete the Google Play in app update.
+
+Do not manually terminate the Android process.
+
+Use the official Google Play API behavior.
+
+---
+
+# 9. USER CHOICES
+
+For normal flexible updates:
+
+Provide:
+
+```text
+UPDATE NOW
+LATER
+```
+
+If the user chooses:
+
+```text
+LATER
+```
+
+close the prompt and continue normally.
+
+Do not repeatedly interrupt the user during the same application session.
+
+Do not create an annoying update loop.
+
+The next appropriate app launch/focus can check again.
+
+---
+
+# 10. IMMEDIATE UPDATE BEHAVIOR
+
+For an immediate update:
+
+The user should not be able to bypass the update if Google Play reports that the update must be completed.
+
+Use Google's official Immediate Update flow.
+
+The update screen should remain consistent with Android's native update experience.
+
+Do not build a fake custom mandatory update screen that attempts to replicate Google Play functionality.
+
+---
+
+# 11. APP STARTUP PERFORMANCE
+
+This is extremely important.
+
+The update check must NOT significantly delay:
+
+* splash screen
+* onboarding
+* home screen
+* news loading
+* navigation
+
+The app should be able to continue initialization while the update availability check happens.
+
+Avoid:
+
+```text
+App launch
+    ↓
+WAIT for Play Store
+    ↓
+WAIT for update check
+    ↓
+WAIT for API
+    ↓
+Show app
+```
+
+Prefer:
+
+```text
+App launch
+    ↓
+Initialize app
+    ├── Check update asynchronously
+    ├── Initialize API
+    ├── Load local state
+    └── Render application
+```
+
+The update system must be non blocking for normal launches.
+
+---
+
+# 12. NETWORK FAILURE
+
+Google Play may be unavailable.
+
+Handle:
+
+* no internet
+* Play Store unavailable
+* Play services unavailable
+* request timeout
+* update check failure
+* interrupted download
+* cancelled update
+* application resumed after update
+* Play Store state changes
+
+If the update check fails:
+
+**silently continue using the application.**
+
+Do not show an error such as:
+
+```text
+Update service failed
+```
+
+to normal users.
+
+This is not a reason to prevent the app from opening.
+
+---
+
+# 13. GOOGLE PLAY AVAILABILITY
+
+The implementation must behave correctly when:
+
+* app is installed from Google Play
+* app is installed in a development environment
+* app is installed through an APK
+* Google Play Store is unavailable
+* Google Play Services behavior differs
+* there is no update available
+
+Do not assume the update API always succeeds.
+
+Fail gracefully.
+
+---
+
+# 14. DEVELOPMENT ENVIRONMENT
+
+Make sure development builds do not constantly trigger update logic.
+
+Do not make local development frustrating.
+
+Clearly separate:
+
+development
+
+debug
+
+release
+
+production
+
+behavior where necessary.
+
+Do not hardcode a fake production update requirement into development builds.
+
+---
+
+# 15. VERSIONING
+
+Inspect the existing Android version configuration.
+
+Understand:
+
+```text
+versionName
+versionCode
+```
+
+Do not arbitrarily change the application's version.
+
+Ensure the implementation works correctly when:
+
+```text
+versionCode increases
+```
+
+and a newer Google Play release becomes available.
+
+Do not use the frontend package version alone to determine whether an update exists.
+
+Google Play should remain the authority for Play Store update availability.
+
+---
+
+# 16. APP LIFECYCLE
+
+Correctly handle Android lifecycle events.
+
+Especially:
+
+```text
+App launch
+App foreground
+App background
+App resume
+Activity recreation
+Configuration changes
+```
+
+For flexible updates, correctly handle the state where:
+
+```text
+download starts
+↓
+user backgrounds app
+↓
+download continues
+↓
+user returns
+↓
+download is complete
+```
+
+Do not create duplicate update listeners.
+
+Do not register listeners repeatedly on every render.
+
+Clean up listeners correctly.
+
+---
+
+# 17. REACT NATIVE ARCHITECTURE
+
+Keep the update logic isolated.
+
+Do not scatter Google Play update logic across:
+
+* HomeScreen
+* NewsScreen
+* SearchScreen
+* ArticleScreen
+* SettingsScreen
+
+Create a clean application-level update mechanism.
+
+Conceptually:
+
+```text
+App
+ └── Update Manager
+      ├── Check availability
+      ├── Determine update type
+      ├── Start update
+      ├── Track progress
+      └── Complete update
+```
+
+Use the existing project architecture rather than blindly creating a new architecture.
+
+---
+
+# 18. STATE MANAGEMENT
+
+Update state should be explicit.
+
+Possible states:
+
+```text
+IDLE
+
+CHECKING
+
+UPDATE_AVAILABLE
+
+DOWNLOADING
+
+DOWNLOADED
+
+INSTALLING
+
+COMPLETED
+
+FAILED
+
+DISMISSED
+```
+
+Do not necessarily implement all of these as global states if the existing architecture does not require it.
+
+Avoid unnecessary state complexity.
+
+---
+
+# 19. PREVENT DUPLICATE CHECKS
+
+Do not check Google Play repeatedly because of:
+
+* React re-renders
+* navigation changes
+* component mounting
+* tab changes
+* API requests
+* news refresh
+* state updates
+
+The update manager should control when a check happens.
+
+Avoid duplicate update requests.
+
+---
+
+# 20. SETTINGS
+
+If the existing Settings screen has a suitable location, consider displaying:
+
+```text
+App version
+```
+
+Example:
+
+```text
+Version 1.4.0
+```
+
+Do not add an unnecessary manual "Check for updates" button unless it fits the existing product UX.
+
+If you add one, it should use the same centralized update manager.
+
+---
+
+# 21. ANDROID ONLY
+
+This feature is specifically for Android Google Play distribution.
+
+Do not break iOS.
+
+The implementation must be platform aware.
+
+On iOS:
+
+```text
+Do nothing
+```
+
+unless an existing cross platform update abstraction requires a no op implementation.
+
+Do not introduce Android specific code into shared components unnecessarily.
+
+---
+
+# 22. DEPENDENCY SELECTION
+
+Before installing any dependency:
+
+Inspect whether the existing project already has a Google Play In App Update compatible package.
+
+Prefer a mature, actively maintained React Native solution that wraps the official Android In App Update API.
+
+Do not install multiple packages solving the same problem.
+
+Do not use deprecated packages.
+
+Check compatibility with the project's current React Native and Android versions.
+
+If the current React Native architecture requires a native implementation, follow the project's existing native module architecture.
+
+Do not introduce unnecessary native complexity.
+
+---
+
+# 23. OFFICIAL GOOGLE PLAY BEHAVIOR
+
+Follow the Google Play In App Updates API semantics.
+
+Do not invent your own update protocol.
+
+The implementation should respect:
+
+* update availability
+* update priority
+* allowed update types
+* update state
+* download progress
+* installation completion
+* interrupted updates
+* lifecycle behavior
+
+Where Google Play controls the behavior, allow Google Play to remain authoritative.
+
+---
+
+# 24. SECURITY
+
+Do not:
+
+* download APKs from arbitrary URLs
+* execute downloaded APKs manually
+* bypass Google Play
+* disable Android package security
+* trust a remote version number blindly
+* introduce an unsigned update mechanism
+
+The update must come through Google Play.
+
+---
+
+# 25. USER EXPERIENCE
+
+The update system should feel invisible when there is no update.
+
+Normal experience:
+
+```text
+Open app
+↓
+App loads normally
+↓
+Read news
+```
+
+Update experience:
+
+```text
+Open app
+↓
+Update available
+↓
+Minimal prompt
+↓
+Update
+↓
+Continue using app
+```
+
+Do not make updates the center of the application.
+
+The news experience always remains the primary product experience.
+
+---
+
+# 26. PERFORMANCE
+
+Keep the update implementation lightweight.
+
+Avoid:
+
+* continuous polling
+* background loops
+* unnecessary API calls
+* unnecessary timers
+* unnecessary storage
+* unnecessary state updates
+
+Use the Android/Google Play lifecycle appropriately.
+
+---
+
+# 27. TESTING
+
+Test the following scenarios:
+
+### Scenario 1
+
+No update available.
+
+Expected:
+
+Application works normally.
+
+### Scenario 2
+
+Flexible update available.
+
+Expected:
+
+Update prompt appears.
+
+### Scenario 3
+
+User selects Later.
+
+Expected:
+
+Prompt closes.
+
+Application continues normally.
+
+### Scenario 4
+
+User starts flexible update.
+
+Expected:
+
+Download begins.
+
+Application remains usable.
+
+### Scenario 5
+
+Flexible download completes.
+
+Expected:
+
+Restart/update action appears.
+
+### Scenario 6
+
+User restarts.
+
+Expected:
+
+New version becomes active.
+
+### Scenario 7
+
+Immediate update available.
+
+Expected:
+
+Immediate update flow starts.
+
+### Scenario 8
+
+No internet.
+
+Expected:
+
+Application continues normally.
+
+### Scenario 9
+
+Google Play unavailable.
+
+Expected:
+
+Application continues normally.
+
+### Scenario 10
+
+User backgrounds the application during update.
+
+Expected:
+
+Update state is handled correctly when the application resumes.
+
+### Scenario 11
+
+Application is reopened while an update is already downloaded.
+
+Expected:
+
+The application correctly detects the pending update state and offers completion.
+
+### Scenario 12
+
+Development/debug build.
+
+Expected:
+
+No disruptive production update behavior.
+
+---
+
+# 28. DO NOT MODIFY BACKEND
+
+This feature does NOT require changes to:
+
+NestJS
+
+PostgreSQL
+
+Redis
+
+BullMQ
+
+OpenSearch
+
+GDELT
+
+news ingestion
+
+news APIs
+
+authentication backend
+
+Do not modify backend code unless the existing application already has a version-management endpoint that is genuinely required.
+
+Google Play should handle update availability.
+
+---
+
+# 29. DO NOT CHANGE BUSINESS LOGIC
+
+Do not modify:
+
+news ingestion
+
+relevance filtering
+
+deduplication
+
+categories
+
+search
+
+bookmarks
+
+authentication
+
+article rendering
+
+GDELT integration
+
+OpenSearch
+
+database behavior
+
+unless required to prevent a regression caused by this implementation.
+
+---
+
+# 30. CODE QUALITY
+
+Follow the existing project's conventions.
+
+Use:
+
+strong TypeScript typing
+
+clear naming
+
+small focused functions
+
+proper cleanup
+
+proper error handling
+
+platform separation
+
+minimal dependencies
+
+No:
+
+any
+
+dead code
+
+duplicate listeners
+
+duplicate update logic
+
+temporary console debugging
+
+hardcoded production URLs
+
+magic values without explanation
+
+---
+
+# 31. FINAL VALIDATION
+
+After implementation:
+
+1. Build the Android application.
+2. Verify there are no Gradle errors.
+3. Verify there are no TypeScript errors.
+4. Verify development builds still work.
+5. Verify release builds still work.
+6. Verify existing navigation works.
+7. Verify onboarding works.
+8. Verify news loading works.
+9. Verify search works.
+10. Verify article detail works.
+11. Verify bookmarks work.
+12. Verify update logic does not interfere with startup.
+13. Verify iOS code is not broken.
+14. Verify no unnecessary dependencies were added.
+
+If an actual Google Play update cannot be simulated locally, clearly document what must be tested through an internal/closed Play testing track.
+
+---
+
+# 32. FINAL REPORT
+
+After implementation, provide:
+
+## Implementation Summary
+
+What was implemented.
+
+## Architecture
+
+Where the update manager lives and how it integrates with the app.
+
+## Update Modes
+
+Explain how flexible and immediate updates are handled.
+
+## UI
+
+Explain how the update experience fits the existing monochrome design.
+
+## Lifecycle
+
+Explain how app resume/background behavior is handled.
+
+## Error Handling
+
+Explain what happens when Google Play or the network is unavailable.
+
+## Dependencies
+
+List any dependency added and why.
+
+## Android Changes
+
+List native Android/Gradle changes.
+
+## React Native Changes
+
+List frontend changes.
+
+## Tests
+
+List tests performed.
+
+## Manual Google Play Testing
+
+Clearly explain anything that requires testing through Google Play internal/closed testing.
+
+## Files Changed
+
+List important files changed and the reason.
+
+---
+
+# FINAL PRINCIPLE
+
+Implement this as a **small, reliable platform integration**, not as a large feature.
+
+Google Play owns the update distribution.
+
+Our application owns the user experience around it.
+
+The update mechanism should be:
+
+Reliable
+
+Non blocking
+
+Secure
+
+Minimal
+
+Native feeling
+
+Resource efficient
+
+Easy to maintain
+
+Compatible with the existing application
+
+And most importantly:
+
+**If the update system fails, the news application should still work.**

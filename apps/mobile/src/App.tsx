@@ -59,7 +59,9 @@ export default function App() {
           buster: APP_VERSION,
           dehydrateOptions: {
             // Persist news for offline reading; skip transient search suggestions and failures.
-            shouldDehydrateQuery: (q) => q.state.status === 'success' && q.queryKey[0] !== 'suggest',
+            // Search results and suggestions are short-lived: persisting them would only grow
+            // AsyncStorage (limited to a few MB on some Android devices) and slow every write.
+            shouldDehydrateQuery: (q) => q.state.status === 'success' && q.queryKey[0] !== 'suggest' && q.queryKey[0] !== 'search',
           },
         }}
       >

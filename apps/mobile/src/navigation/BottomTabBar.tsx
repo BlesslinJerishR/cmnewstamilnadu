@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bookmark, House, LayoutGrid, Newspaper, Search } from 'lucide-react-native';
+import { Bookmark, House, LayoutGrid, Newspaper, Search } from '../components/icons';
 import { Icon, IconComponent, Text } from '../components/primitives';
 import { color, icon, layout, space } from '../theme/tokens';
 import { TabParamList } from './types';

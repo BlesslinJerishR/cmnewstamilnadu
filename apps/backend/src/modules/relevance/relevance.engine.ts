@@ -154,6 +154,15 @@ export function validateRule(rule: Pick<RelevanceRule, 'ruleType' | 'pattern' | 
   }
 }
 
+function segment(values: Array<string | null | undefined>): Array<{ text: string; tokens: string[] }> {
+  const out: Array<{ text: string; tokens: string[] }> = [];
+  for (const v of values) {
+    const text = toMatchText(v);
+    if (text) out.push({ text, tokens: text.split(' ') });
+  }
+  return out;
+}
+
 export class RelevanceEngine {
   private readonly compiled: CompiledRule[];
   private readonly anchor: RegExp | null;
@@ -167,17 +176,14 @@ export class RelevanceEngine {
   }
 
   score(input: RelevanceInput): RelevanceResult {
-    const texts: Record<RelevanceField, string> = {
-      title: toMatchText(input.title),
-      description: toMatchText(input.description),
-      url: urlToMatchText(input.url),
-      entities: toMatchText(input.entities),
-    };
-    const tokens: Record<RelevanceField, string[]> = {
-      title: texts.title ? texts.title.split(' ') : [],
-      description: texts.description ? texts.description.split(' ') : [],
-      url: texts.url ? texts.url.split(' ') : [],
-      entities: texts.entities ? texts.entities.split(' ') : [],
+    // Every field is a list of independent segments. Title, description and URL are one segment
+    // each; provider entities ("c joseph vijay ; deputy chief minister ; vijay sharma") are one
+    // segment per entity, so a phrase can never match across two different names.
+    const segments: Record<RelevanceField, Array<{ text: string; tokens: string[] }>> = {
+      title: segment([input.title]),
+      description: segment([input.description]),
+      url: [{ text: urlToMatchText(input.url), tokens: urlToMatchText(input.url).split(' ').filter(Boolean) }],
+      entities: segment((input.entities ?? '').split(';')),
     };
 
     const signals: RelevanceSignal[] = [];
@@ -188,7 +194,8 @@ export class RelevanceEngine {
       let best = 0;
       let occurrences = 0;
       for (const field of rule.fields) {
-        const c = count(texts[field], tokens[field]);
+        let c = 0;
+        for (const seg of segments[field]) c += count(seg.text, seg.tokens);
         if (c > 0) {
           matchedFields.push(field);
           occurrences += c;
@@ -228,7 +235,7 @@ export class RelevanceEngine {
     const anchorFound =
       !this.anchor ||
       queryWeights.length > 0 ||
-      RELEVANCE_FIELDS.some((f) => this.anchor!.test(texts[f]));
+      RELEVANCE_FIELDS.some((f) => segments[f].some((seg) => this.anchor!.test(seg.text)));
 
     const score = round2(Math.max(0, Math.min(100, total)));
     let status: RelevanceResult['status'];

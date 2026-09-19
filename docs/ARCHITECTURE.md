@@ -96,9 +96,14 @@ OpenSearch image even removes the ML/neural/k-NN plugins.
 - **Duplicate jobs:** scheduled jobs get deterministic ids (`doc-<query>-<interval bucket>`), so a
   cycle cannot enqueue the same window twice.
 - **No overlapping workers:** DOC requests are serialised deployment-wide by a Redis slot
-  (`SET NX PX`), ≥10 s apart; after a rate-limit answer every process pauses for 5 minutes.
-- **Retries/backoff:** 5 attempts, exponential from 30 s (backfill DOC slices: 8). Queries GDELT
-  rejects outright (syntax) fail immediately (`UnrecoverableError`).
+  (`SET NX PX`), ≥10 s apart; after a rate-limit answer the slot is held for 5 minutes.
+- **Rate limiting without waste:** when the slot is held longer than normal spacing, the job does
+  not wait inside a worker. The worker calls BullMQ's `worker.rateLimit(ms)` and throws
+  `RateLimitError`: the whole DOC queue pauses, the job returns to the queue without using an
+  attempt, and no failed run is recorded.
+- **Retries/backoff:** 5 attempts, exponential from 30 s (backfill DOC slices: 8) for real errors
+  (network, 5xx, malformed data). Queries GDELT rejects outright (syntax) fail immediately
+  (`UnrecoverableError`).
 - **Record cap:** DOC returns ≤250 records; full windows are split in half recursively.
 - **History:** every fetch writes an `ingestion_runs` row (window, counts, duration, error).
 - **Backfill** (`createBackfill`): the range is cut into slices stored in `backfill_slices`:
@@ -146,7 +151,9 @@ change. `provider_metadata` keeps a little GDELT context for 30 days only.
 `src/modules/relevance/relevance.engine.ts`, rules in `relevance_rules`:
 
 - **Rule types:** `phrase` (whole-word), `regex`, `proximity` (term A within N tokens of B).
-- **Fields:** title (×1.0), description (×0.7), URL slug (×0.6), GDELT entities (×0.8).
+- **Fields:** title (×1.0), description (×0.7), URL slug (×0.6), GDELT entities (×0.8). Entities
+  are matched one entity at a time, so a phrase never spans two names ("Chief Minister ; Vijay
+  Sharma" does not read as "Chief Minister Vijay").
 - A rule counts once at its strongest field, plus 10 % per extra occurrence (max 3): frequency
   matters but cannot dominate.
 - **Positive signals:** full name (45), "CM/Chief Minister Vijay" (45, not "CM Vijay Rupani"),
@@ -176,6 +183,11 @@ representative; copies keep `duplicate_of_id` and a reason (`syndicated_same_tit
 are shown on the detail screen as "Also reported by". If a representative is later rejected, its
 copies are re-evaluated. Duplicates are never indexed.
 
+Fuzzy (level 5) matches have two deterministic guards (`fuzzyMatchAllowed`): headlines whose
+numbers differ are never merged ("₹500 crore" vs "₹200 crore"), and a headline naming the niche
+anchor (the CM) is never hidden behind one that doesn't ("PM Modi congratulates" vs "CM Vijay
+congratulates"). Rescoring re-checks existing fuzzy matches with the same guards.
+
 ## 10. Article quality system
 
 `assessQuality` → `accepted` / `pending_review` / `rejected`:
@@ -203,7 +215,10 @@ See `apps/backend/migrations/001_initial_schema.sql`. Tables: `niches`, `gdelt_q
 `ingestion_runs`, `backfills`, `backfill_slices`, `search_outbox`, `users`, `sessions`,
 `bookmarks`, `dead_letter_jobs`, `system_settings`, `admin_audit_log`.
 Key indexes: partial `(niche_id, published_at DESC, id DESC) WHERE status='accepted'` for feeds,
-trigram GIN on `normalized_title`, `(niche_id, title_hash)`.
+partial `(niche_id, source_domain, published_at DESC, id DESC) WHERE status='accepted'` for
+publisher pages, trigram GIN on `normalized_title` (dedup and the search fallback),
+`(niche_id, title_hash)`. Category feeds filter by `category_id` via a one-row subquery, so they
+walk the feed index newest-first instead of sorting the whole category.
 **Translation readiness:** a future `article_translations (article_id, language, title,
 description, method, created_at)` table keyed by article id; the canonical article stays English.
 
@@ -275,7 +290,7 @@ quality, classifier) has no framework dependencies and is unit tested.
 
 See `docs/API.md`. `/api/v1` prefix; zod validation; cursor pagination (opaque base64url
 `(published_at,id)` or OpenSearch `search_after`), limit ≤50; uniform errors
-`{ error: { code, message, details? } }`; Redis caching; rate limits 120/min/IP (auth 10/min).
+`{ error: { code, message, details? } }`; Redis caching; rate limits 600/min/IP, generous because Indian carriers put many users behind one IP (auth 10/min).
 
 ## 21. Feed architecture
 
@@ -354,7 +369,9 @@ memory limits, no orchestration overhead. Kubernetes is not used.
 HTTPS via Caddy (HSTS), firewall allowing 22/80/443 only, SSH keys only (see OPERATIONS), secrets
 in an untracked `.env`, databases on an internal Docker network with passwords, helmet headers,
 CORS closed by default, zod validation on every input, body size limits, per-IP rate limits,
-scrypt password hashes, hashed opaque session tokens, admin role guard + audit log. **SSRF:** the
+scrypt password hashes, hashed opaque session tokens, admin role guard + audit log.
+`X-Forwarded-For` is trusted only from loopback/private addresses (`TRUST_PROXY`, i.e. Caddy on
+the Docker network), so clients cannot spoof their IP to dodge rate limits. **SSRF:** the
 server never fetches article URLs; it only fetches GDELT endpoints. External URLs are validated
 (public http(s), no IPs/credentials/odd ports) and only ever returned as links. `/metrics`
 requires a token and is blocked at Caddy.
@@ -381,7 +398,9 @@ status, ingestion runs/outcomes (duplicate and rejection rates) in 24 h, age of 
 scheduled fetch, outbox pending/failed, BullMQ queue depths, Redis memory, PostgreSQL size and
 connections, OpenSearch up/heap/disk/doc count, disk usage. `/health` (liveness) and
 `/health/ready` (PostgreSQL required; Redis/OpenSearch → `degraded`). Suggested alerts in
-`docs/OPERATIONS.md`.
+`docs/OPERATIONS.md`. In production every log line is a JSON object (NestJS `ConsoleLogger` with
+`json: true`); requests slower than 1 s are logged with their route pattern (never the query
+string, so no user input is logged).
 
 ## 32. Failure handling
 
@@ -487,9 +506,11 @@ Unit tests (`npm test`): URL canonicalisation, text cleanup, normaliser, relevan
 real-data regressions, quality filter, classifier, GKG/DOC parsing. Verified end to end against
 real PostgreSQL/Redis/OpenSearch and live GDELT: ingestion, dedup, indexing, search, pagination,
 auth, bookmarks, admin moderation → index removal, OpenSearch outage (fallback + outbox drain),
-lost index rebuild, Redis outage, backup restore. Still to add: automated integration suite in CI,
-load tests (e.g. autocannon against `/feed` and `/news/search`), mobile component tests and device
-testing.
+lost index rebuild, Redis outage, backup restore. Integration suite
+(`src/test/pipeline.integration.spec.ts`, runs in CI against PostgreSQL in a throwaway schema):
+idempotent re-ingestion with URL variants, syndication dedup, relevance rejection, category/source
+keyset pagination, PostgreSQL search fallback, rescoring stability. Still to add: mobile component
+tests and on-device testing.
 
 ## 44. Risks and mitigations
 

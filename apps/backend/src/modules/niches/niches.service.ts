@@ -33,6 +33,8 @@ export interface PipelineContext {
   relevance: RelevanceEngine;
   classifier: CategoryClassifier;
   queryWeights: Map<number, number>;
+  /** Niche anchor (e.g. /\bvijay\b/) applied to match text; null when the niche has none. */
+  anchor: RegExp | null;
   loadedAt: number;
 }
 
@@ -170,6 +172,7 @@ export class NichesService {
         })),
       ),
       queryWeights: new Map(queryRows.map((q) => [q.id, q.relevance_weight])),
+      anchor: this.relevanceConfig(niche).anchorPattern ? new RegExp(this.relevanceConfig(niche).anchorPattern, 'u') : null,
       loadedAt: Date.now(),
     };
     this.contexts.set(nicheId, ctx);

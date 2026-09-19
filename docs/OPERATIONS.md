@@ -123,6 +123,9 @@ OpenSearch is not backed up: it is rebuilt from PostgreSQL.
   - `cmnews_disk_used_percent > 80`
   - `cmnews_redis_used_memory_bytes > 150e6`
   - `cmnews_queue_jobs{state="failed"}` increasing; HTTP 5xx rate; p95 latency > 500 ms
+- Logs: production logs are one JSON object per line, e.g.
+  `docker compose logs worker | grep '"level":"error"'`; slow requests (>1 s) appear as
+  `Slow request GET /api/v1/... <ms>`.
 - Quick checks: `docker stats --no-stream`, `docker compose exec worker node dist/cli.js backfill-status`,
   `GET /api/v1/admin/indexing/status`, `GET /api/v1/admin/ingestion/summary`.
 
@@ -138,7 +141,8 @@ set -a; . ./.env.development; set +a
 node dist/cli.js migrate
 node dist/main.js     # API on :3000
 node dist/worker.js   # worker (separate terminal)
-npm test
+npm test                                        # unit tests
+INTEGRATION_DATABASE_URL=$DATABASE_URL npm test # + pipeline tests in a throwaway schema
 
 cd ../mobile && npm install
 npx expo start   # Expo Go uses this computer's LAN IP on port 3000 for the API

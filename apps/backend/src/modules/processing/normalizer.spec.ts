@@ -82,3 +82,22 @@ describe('normalizeCandidate', () => {
     expect(normalizeCandidate({ provider: 'x', url: 'https://a.com/x', title: 'A title here', publishedAt: 'bad' }).ok).toBe(false);
   });
 });
+
+import { fuzzyMatchAllowed } from '../deduplication/deduplication.service';
+import { toMatchText as mt } from '../../common/text';
+
+describe('near-duplicate guards', () => {
+  const anchor = /\bvijay\b/u;
+  const ok = (a: string, b: string) => fuzzyMatchAllowed(mt(a), mt(b), anchor);
+  it('merges rewordings of the same story', () => {
+    expect(ok('TVK Government Wins Floor Test in Tamil Nadu Assembly', 'TVK Govt Wins Floor Test in Tamil Nadu Assembly')).toBe(true);
+    expect(ok('TVK Govt Wins Trust Vote 144 - 22; DMK Walks Out', 'TVK wins TN trust vote; DMK walks out')).toBe(true);
+  });
+  it('keeps stories with different numbers apart', () => {
+    expect(ok('Govt sanctions Rs 500 crore for Madurai metro', 'Govt sanctions Rs 200 crore for Madurai metro')).toBe(false);
+  });
+  it('never hides a story about the CM behind one that does not mention him', () => {
+    expect(ok('Praggnanandhaa Wins Norway Chess 2026: CM Vijay Congratulates', 'Praggnanandhaa Wins Norway Chess 2026: PM Modi Congratulates')).toBe(false);
+    expect(ok('Praggnanandhaa Wins Norway Chess 2026: PM Modi Congratulates', 'Praggnanandhaa Wins Norway Chess 2026: CM Vijay Congratulates')).toBe(true);
+  });
+});

@@ -1,6 +1,6 @@
 import { ComponentType, ReactNode } from 'react';
 import { Pressable, PressableProps, StyleProp, StyleSheet, Text as RNText, TextProps, View, ViewStyle } from 'react-native';
-import type { LucideProps } from 'lucide-react-native';
+import type { LucideProps } from './icons';
 import { borderWidth, color, icon as iconToken, layout, radius, space, text, TextTone, TextVariant, tone } from '../theme/tokens';
 
 export type IconComponent = ComponentType<LucideProps>;

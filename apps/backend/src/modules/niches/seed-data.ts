@@ -49,12 +49,12 @@ export interface SeedRule {
 
 /** Other well-known people, places and phrases named "Vijay ...". */
 const OTHER_VIJAY_SURNAMES =
-  'sethupathi|antony|devarakonda|deverakonda|varma|raaz|raz|mallya|rupani|shankar|hazare|sinha|wadettiwar|vasanth|yesudas|prakash|kumar|shekhar|goel|chowk|nagar|singh|bahuguna|mishra|patil|babu|milton|kedia|amritraj|mahajan|jolly|sai|sales|bank|bhaskar|raghavan|thakur|chouhan|chauhan|dahiya|kiragandur|salgaonkar|sampla|oberoi|rathore|yadav|gupta|mehta|malhotra|patel|chaudhary|chaudhry|sardesai|tendulkar|kichlu|diwas|hazaribagh';
+  'sethupathi|antony|devarakonda|deverakonda|varma|raaz|raz|mallya|rupani|shankar|hazare|sinha|wadettiwar|vasanth|yesudas|prakash|kumar|shekhar|goel|chowk|nagar|singh|bahuguna|mishra|patil|babu|milton|kedia|amritraj|mahajan|jolly|sai|sales|bank|bhaskar|raghavan|thakur|chouhan|chauhan|dahiya|kiragandur|salgaonkar|sampla|oberoi|rathore|yadav|gupta|mehta|malhotra|patel|chaudhary|chaudhry|sardesai|tendulkar|kichlu|diwas|hazaribagh|sharma|bahadur|mallik|pal';
 
 export const SEED_RELEVANCE_RULES: SeedRule[] = [
   // High confidence
   { name: 'joseph-vijay', ruleType: 'regex', pattern: '\\b(c )?joseph (c )?vijay\\b', fields: ALL, weight: 45, notes: 'Full name, with or without the initial.' },
-  { name: 'chief-minister-vijay', ruleType: 'regex', pattern: `\\b(chief minister|cm) (c )?(joseph )?vijay\\b(?! (${OTHER_VIJAY_SURNAMES})\\b)`, fields: ALL, weight: 45, notes: '"Chief Minister Vijay", "CM Vijay", "CM C Joseph Vijay" (not e.g. "CM Vijay Rupani").' },
+  { name: 'chief-minister-vijay', ruleType: 'regex', pattern: `(?<!deputy )\\b(chief minister|cm) (c )?(joseph )?vijay\\b(?! (${OTHER_VIJAY_SURNAMES})\\b)`, fields: ALL, weight: 45, notes: '"Chief Minister Vijay", "CM Vijay", "CM C Joseph Vijay" (not "CM Vijay Rupani" or "Deputy CM Vijay Sharma").' },
   { name: 'vijay-as-chief-minister', ruleType: 'regex', pattern: '\\bvijay (as |is |the )?(tamil nadu |tn |state )?(chief minister|cm)\\b', fields: TEXT, weight: 35, notes: '"Vijay as Tamil Nadu CM".' },
   { name: 'tvk-chief-vijay', ruleType: 'regex', pattern: '\\b(tvk|tamilaga vettri kazhagam) (chief|president|leader|founder|supremo) (c )?(joseph )?vijay\\b', fields: ALL, weight: 35, notes: 'Party leader references.' },
   // Medium confidence / context

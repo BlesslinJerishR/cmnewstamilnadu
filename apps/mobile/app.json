@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "scheme": "cmnews",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "backgroundColor": "#FFFFFF",
     "ios": {
       "supportsTablet": true,
@@ -34,11 +34,7 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#FFFFFF",
-          "dark": {
-            "image": "./assets/splash-icon-dark.png",
-            "backgroundColor": "#000000"
-          }
+          "backgroundColor": "#FFFFFF"
         }
       ],
       "expo-image"

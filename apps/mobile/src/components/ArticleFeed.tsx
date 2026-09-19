@@ -3,7 +3,7 @@ import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'r
 import { InfiniteData, UseInfiniteQueryResult } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Newspaper } from 'lucide-react-native';
+import { Newspaper } from './icons';
 import type { ArticleSummary, Paginated } from '@cmnews/shared';
 import { RootStackParamList } from '../navigation/types';
 import { color, layout, space } from '../theme/tokens';

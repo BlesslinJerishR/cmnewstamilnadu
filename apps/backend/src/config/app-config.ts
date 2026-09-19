@@ -15,8 +15,13 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['error', 'warn', 'log', 'debug', 'verbose']).default('log'),
   HOST: z.string().default('0.0.0.0'),
   PORT: z.coerce.number().int().positive().default(3000),
-  /** Reverse proxies in front of the API (Caddy = 1). Client IPs are read from X-Forwarded-For past them. */
-  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(1),
+  /**
+   * Proxy addresses whose X-Forwarded-For header is trusted (proxy-addr syntax: CIDRs or the
+   * keywords loopback / linklocal / uniquelocal). The default trusts only loopback and private
+   * networks, i.e. Caddy on the Docker network; public clients can never spoof their IP.
+   * Set to "false" to ignore X-Forwarded-For entirely.
+   */
+  TRUST_PROXY: z.string().default('loopback,linklocal,uniquelocal'),
   CORS_ORIGINS: z.string().default(''),
 
   DATABASE_URL: z.string().min(1),
@@ -49,7 +54,11 @@ const envSchema = z.object({
   INITIAL_BACKFILL_FROM: optionalDate,
   INITIAL_BACKFILL_TO: optionalDate,
 
-  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(120),
+  /**
+   * Requests per IP per window. Indian mobile carriers put many subscribers behind one public IP
+   * (CGNAT), so this is generous; Redis response caching absorbs the load.
+   */
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(600),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   SESSION_TTL_DAYS: z.coerce.number().int().min(1).max(365).default(30),
